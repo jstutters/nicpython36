@@ -732,7 +732,7 @@ class wm_seg:
                 pp = os.path.join(self.path, 'spider', 'bin')
 
                 CURRENT_PATHx = os.path.split(os.path.realpath(__file__))[0]
-                tensorboard = CURRENT_PATHx + '/libs/bin/tensorboard'
+                # tensorboard = CURRENT_PATHx + '/libs/bin/tensorboard'
                 Folder=thispath
                 Port=thisport
                 os_host = platform.system()
@@ -746,7 +746,7 @@ class wm_seg:
                 elif os_host == 'Darwin':
                     import appscript
                     appscript.app('Terminal').do_script(
-                        tensorboard + '   --logdir=' + str(
+                        'tensorboard     --logdir=' + str(
                             thispath) + '  --port=' + str(thisport))
 
                 else:
