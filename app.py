@@ -27,7 +27,7 @@ from tkinter.ttk import Notebook
 from PIL import Image, ImageTk
 import webbrowser
 from cnn_scripts import train_network, infer_segmentation, get_config
-import tensorboard
+
 
 
 class wm_seg:
@@ -55,10 +55,10 @@ class wm_seg:
         self.list_train_pretrained_nets = []
         self.list_test_nets = []
         self.version = __version__
-        if self.container is False:
+        # if self.container is False:
             # version_number
-            self.commit_version = subprocess.check_output(
-                ['git', 'rev-parse', 'HEAD'])
+          #  self.commit_version = subprocess.check_output(
+           #     ['git', 'rev-parse', 'HEAD'])
 
         # queue and thread parameters. All processes are embedded
         # inside threads to avoid freezing the application
