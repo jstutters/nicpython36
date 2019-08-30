@@ -1,7 +1,7 @@
 # MS_CNN
 
 <br>
- <img height="100" src="note.jpg" />
+ <img height="100" src="CNN.jpeg" />
  </br>
  
 # This is a modified version of nicMSlesions (https://github.com/NIC-VICOROB/nicMSlesions)
