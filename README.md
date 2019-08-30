@@ -1,5 +1,9 @@
 # MS_CNN
 
+<br>
+ <img height="100" src="note.jpg" />
+ </br>
+ 
 # This is a modified version of nicMSlesions (https://github.com/NIC-VICOROB/nicMSlesions)
 
 # This  version support additionally the following functionalities: 
