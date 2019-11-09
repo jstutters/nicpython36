@@ -421,6 +421,11 @@ def infer_segmentation(options):
                                               options['x_names'])}}
 
         test_cascaded_model(model, test_x_data, options)
+        
+        if options['register_modalities']:
+             print("> INFO:", scan, "Inverting lesion segmentation masks")
+             invert_registration(current_folder, options)
+            
         print("> INFO:", scan, "CNN Segmentation time: ", round(time.time() - seg_time), "sec")
         print("> INFO:", scan, "total pipeline time: ", round(time.time() - total_time), "sec")
 
