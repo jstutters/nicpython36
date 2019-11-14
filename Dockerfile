@@ -26,7 +26,7 @@ ENV PATH=/miniconda/bin:${PATH}
 RUN conda update -y conda
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
-RUN source activate idp
+RUN conda activate idp
 
 
 # install CNN related packages
