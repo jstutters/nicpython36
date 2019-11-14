@@ -24,11 +24,15 @@ RUN bash Miniconda-latest-Linux-x86_64.sh -p /miniconda -b
 RUN rm /Miniconda-latest-Linux-x86_64.sh
 ENV PATH=/miniconda/bin:${PATH}
 RUN conda update -y conda
+RUN conda config --add channels intel
+RUN conda create -n idp intelpython3_full python=3
+RUN source activate idp
+
 
 # install CNN related packages
 ADD requirements.txt /requirements.txt
-RUN conda install numpy scipy mkl
-RUN conda install theano pygpu
+# RUN conda install numpy scipy mkl
+# RUN conda install theano pygpu
 RUN pip install pip --upgrade
 RUN pip install -r /requirements.txt
 
@@ -40,8 +44,12 @@ ENV HOME /home/docker
 RUN mkdir $HOME/src
 ENV PATH=/$HOME/src:${PATH}
 ADD __init__.py $HOME/src/
-ADD .theanorc $HOME/.theanorc
-ADD .keras $HOME/.keras
+RUN mkdir $HOME/src/.theanorc
+ENV PATH=/$HOME/src/.theanorc:${PATH}
+ADD .theanorc $HOME/src/.theanorc/
+RUN mkdir $HOME/src/.keras
+ENV PATH=/$HOME/src/.keras:${PATH}
+ADD .keras $HOME/src/.keras/
 ADD app.py $HOME/src/
 ADD cnn_scripts.py $HOME/src/
 # ADD config $HOME/src/config
