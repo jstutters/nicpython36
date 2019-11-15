@@ -45,7 +45,7 @@ RUN mkdir $HOME/src
 ENV PATH=/$HOME/src:${PATH}
 ADD __init__.py $HOME/src/
 ADD .theanorc $HOME/src/
-ADD .keras $HOME/src/
+# ADD .keras $HOME/src/
 # RUN mkdir $HOME/src/.theanorc
 # ENV PATH=/$HOME/src/.theanorc:${PATH}
 # ADD .theanorc $HOME/src/.theanorc/
