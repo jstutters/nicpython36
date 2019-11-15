@@ -26,13 +26,13 @@ ENV PATH=/miniconda/bin:${PATH}
 RUN conda update -y conda
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
-RUN conda activate idp
+# RUN conda activate idp
 
 
 # install CNN related packages
 ADD requirements.txt /requirements.txt
-# RUN conda install numpy scipy mkl
-# RUN conda install theano pygpu
+RUN conda install numpy scipy mkl
+RUN conda install theano pygpu
 RUN pip install pip --upgrade
 RUN pip install -r /requirements.txt
 
