@@ -17,7 +17,7 @@ ENV PATH /opt/conda/bin:$PATH
 ENV PATH /opt/conda/envs/idp/bin:$PATH
 
 # Add conda environment files (.yml)
-COPY ["./conda_environments/", "."]
+# COPY ["./conda_environments/", "."]
 
 USER root
 ENV CUDA_ROOT /usr/local/cuda/bin
