@@ -28,6 +28,7 @@ RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 RUN echo "source activate idp" > ~/.bashrc
 ENV PATH /opt/conda/envs/env/bin:$PATH
+RUN conda remove -n tensorflow
 
 # install CNN related packages
 ADD requirements.txt /requirements.txt
@@ -36,7 +37,6 @@ RUN conda install theano pygpu
 RUN pip install pip --upgrade
 RUN pip install -r /requirements.txt
 # RUN pip uninstall protobuf
-RUN pip uninstall tensorflow
 RUN pip install --upgrade tensorflow-gpu
 
 # create a docker user
