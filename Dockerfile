@@ -13,22 +13,40 @@ RUN apt-get update && apt-get install -y \
   git \
   curl \
   emacs24
+ENV PATH /opt/conda/bin:$PATH
+ENV PATH /opt/conda/envs/idp/bin:$PATH
+
+# Add conda environment files (.yml)
+COPY ["./conda_environments/", "."]
 
 USER root
 ENV CUDA_ROOT /usr/local/cuda/bin
+# Get installation file
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh -O ~/anaconda.sh
 
+# Install anaconda at /opt/conda
+RUN /bin/bash ~/anaconda.sh -b -p "/opt/conda"
 
-# Install miniconda to /miniconda
-RUN curl -LO http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-RUN bash Miniconda-latest-Linux-x86_64.sh -p /miniconda -b
-RUN rm /Miniconda-latest-Linux-x86_64.sh
-ENV PATH=/miniconda/bin:${PATH}
+# Remove installation file
+RUN rm ~/anaconda.sh
+
+# Make conda command available to all users
+RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
+# Activate conda environment with interactive bash session
 RUN conda update -y conda
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 RUN echo "source activate idp" > ~/.bashrc
-ENV PATH /opt/conda/envs/env/bin:$PATH
-RUN conda remove -n tensorflow
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
+
+# Install miniconda to /miniconda
+# RUN curl -LO http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
+# RUN bash Miniconda-latest-Linux-x86_64.sh -p /miniconda -b
+# RUN rm /Miniconda-latest-Linux-x86_64.sh
+# ENV PATH=/opt/conda/bin:${PATH}
+
+# ENV PATH=/miniconda/envs/idp/bin:$PATH
+# RUN conda remove -n tensorflow
 
 # install CNN related packages
 ADD requirements.txt /requirements.txt
