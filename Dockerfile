@@ -35,7 +35,7 @@ RUN conda install numpy scipy mkl
 RUN conda install theano pygpu
 RUN pip install pip --upgrade
 RUN pip install -r /requirements.txt
-RUN pip uninstall protobuf
+# RUN pip uninstall protobuf
 RUN pip uninstall tensorflow
 RUN pip install --upgrade tensorflow-gpu
 
