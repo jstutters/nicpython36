@@ -71,8 +71,7 @@ ENV PATH /opt/conda/envs/idp/bin:$PATH
 
 
 RUN conda update conda
-RUN conda update anaconda
-RUN conda update --all
+# ok.......................................
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 # RUN echo "source activate idp" > ~/.bashrc
