@@ -52,7 +52,7 @@ RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 ADD requirements.txt /requirements.txt
 RUN conda install numpy scipy mkl
 RUN conda install theano pygpu
-RUN pip install pip --upgrade
+# RUN pip install pip --upgrade
 RUN pip install -r /requirements.txt
 # RUN pip uninstall protobuf
 RUN pip install --upgrade tensorflow-gpu
