@@ -92,18 +92,22 @@ RUN conda install -y python=${python_version} && \
     # pip install --upgrade pip && \
     pip install \
       sklearn_pandas \
+      h5py \
+      MedPy \
+      nibabel \
+      Keras \
+      numpy \
+      scipy \
+      Pillow \
       tensorflow-gpu \
       cntk-gpu && \
     conda install \
-      numpy \
-      scipy \
       bcolz \
       h5py \
       matplotlib \
       mkl \
       nose \
       notebook \
-      Pillow \
       pandas \
       pydot \
       pygpu \
@@ -122,7 +126,7 @@ ADD requirements.txt /requirements.txt
 # RUN conda install numpy scipy mkl
 # RUN conda install theano pygpu
 # RUN pip install pip --upgrade
-RUN pip install -r /requirements.txt
+# RUN pip install -r /requirements.txt
 # RUN pip uninstall protobuf
 # RUN conda install tensorflow-gpu
 
