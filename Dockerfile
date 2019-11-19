@@ -1,18 +1,46 @@
-ARG UBUNTU_VERSION=18.04
+
 MAINTAINER thisgithub
 
-ARG ARCH=
-ARG CUDA=10.0
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
-# ARCH and CUDA are specified again because the FROM directive resets ARGs
-# (but their default value is retained if set previously)
-ARG ARCH
-ARG CUDA
-ARG CUDNN=7.6.2.24-1
+ARG cuda_version=9.0
+ARG cudnn_version=7
+FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel
 
-# Needed for string substitution
-SHELL ["/bin/bash", "-c"]
-# Pick up some TF dependencies
+# Install system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bzip2 \
+      g++ \
+      git \
+      graphviz \
+      libgl1-mesa-glx \
+      libhdf5-dev \
+      openmpi-bin \
+      wget && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install conda
+ENV CONDA_DIR /opt/conda
+ENV PATH $CONDA_DIR/bin:$PATH
+
+RUN wget --quiet --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh && \
+    echo "c59b3dd3cad550ac7596e0d599b91e75d88826db132e4146030ef471bb434e9a *Miniconda3-4.2.12-Linux-x86_64.sh" | sha256sum -c - && \
+    /bin/bash /Miniconda3-4.2.12-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
+    rm Miniconda3-4.2.12-Linux-x86_64.sh && \
+    echo export PATH=$CONDA_DIR/bin:'$PATH' > /etc/profile.d/conda.sh
+
+# Install Python packages and keras
+ENV NB_USER keras
+ENV NB_UID 1000
+
+RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
+    chown $NB_USER $CONDA_DIR -R && \
+    mkdir -p /src && \
+    chown $NB_USER /src
+
+# USER $NB_USER
+USER root
+ARG python_version=3.6
+
+RUN conda config --append channels conda-forge
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cuda-command-line-tools-${CUDA/./-} \
@@ -52,75 +80,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       wget && \
     rm -rf /var/lib/apt/lists/*        
 
-RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer5=5.1.5-1+cuda${CUDA} \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*)
-
-# For CUDA profiling, TensorFlow requires CUPTI.
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
-# Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
-# dynamic linker run-time bindings
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-    && ldconfig
-
-ARG USE_PYTHON_3_NOT_2
-ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
-ARG PYTHON=python${_PY_SUFFIX}
-ARG PIP=pip${_PY_SUFFIX}
-
-# See http://bugs.python.org/issue19846
-ENV LANG C.UTF-8
-
-RUN apt-get update && apt-get install -y \
-    ${PYTHON} \
-    ${PYTHON}-pip
-
-RUN ${PIP} --no-cache-dir install --upgrade \
-    pip \
-    setuptools
-
-# Some TF tools expect a "python" binary
-RUN ln -s $(which ${PYTHON}) /usr/local/bin/python 
-
-# Options:
-#   tensorflow
-#   tensorflow-gpu
-#   tf-nightly
-#   tf-nightly-gpu
-# Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
-# Installs the latest version by default.
-ARG TF_PACKAGE=tensorflow-gpu
-ARG TF_PACKAGE_VERSION=
-RUN ${PIP} install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
-
-COPY bashrc /etc/bash.bashrc
-RUN chmod a+rwx /etc/bash.bashrc
-
 
     
 ENV PATH /opt/conda/bin:$PATH
 ENV PATH /opt/conda/envs/idp/bin:$PATH
 
-# Add conda environment files (.yml)
-# COPY ["./conda_environments/", "."]
 
-USER root
-# ENV CUDA_ROOT /usr/local/cuda/bin
-# Get installation file
-RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh -O ~/anaconda.sh
-
-# Install anaconda at /opt/conda
-RUN /bin/bash ~/anaconda.sh -b -p "/opt/conda"
-
-# Remove installation file
-RUN rm ~/anaconda.sh
-
-# Make conda command available to all users
-RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
-# Activate conda environment with interactive bash session
 RUN conda update conda
 RUN conda update anaconda
 RUN conda update --all
