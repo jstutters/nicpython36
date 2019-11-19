@@ -33,7 +33,9 @@ RUN rm ~/anaconda.sh
 # Make conda command available to all users
 RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
 # Activate conda environment with interactive bash session
-RUN conda update -y conda
+RUN conda update conda
+RUN conda update anaconda
+RUN conda update --all
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 RUN echo "source activate idp" > ~/.bashrc
@@ -53,9 +55,9 @@ ADD requirements.txt /requirements.txt
 RUN conda install numpy scipy mkl
 RUN conda install theano pygpu
 # RUN pip install pip --upgrade
-RUN pip install -r /requirements.txt
+RUN conda install -r /requirements.txt
 # RUN pip uninstall protobuf
-RUN pip install --upgrade tensorflow-gpu
+RUN conda install tensorflow-gpu
 
 # create a docker user
 RUN useradd -ms /bin/bash docker
