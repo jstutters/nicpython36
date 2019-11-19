@@ -40,22 +40,7 @@ USER root
 ARG python_version=3.6
 
 RUN conda config --append channels conda-forge
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        cuda-cublas-${CUDA/./-} \
-        cuda-cufft-${CUDA/./-} \
-        cuda-curand-${CUDA/./-} \
-        cuda-cusolver-${CUDA/./-} \
-        cuda-cusparse-${CUDA/./-} \
-        curl \
-        libcudnn7=${CUDNN}+cuda${CUDA} \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
-        pkg-config \
-        software-properties-common \
-        unzip
+
         
 # Install git, wget, python-dev, pip, BLAS + LAPACK and other dependencies
 RUN apt-get update && apt-get install -y \
