@@ -99,6 +99,7 @@ RUN conda install -y python=${python_version} && \
       numpy \
       scipy \
       Pillow \
+      click \
       tensorflow-gpu \
       cntk-gpu && \
     conda install \
