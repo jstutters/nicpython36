@@ -1,6 +1,6 @@
 
-ARG cuda_version=9.0
-ARG cudnn_version=7
+ARG cuda_version=10.0
+ARG cudnn_version=7.4
 FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel
 MAINTAINER thisgithub
 
@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       openmpi-bin \
       wget && \
     rm -rf /var/lib/apt/lists/*
+
 
 # Install conda
 ENV CONDA_DIR /opt/conda
@@ -53,16 +54,7 @@ RUN apt-get update && apt-get install -y \
   curl \
   emacs24
   
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bzip2 \
-      g++ \
-      git \
-      graphviz \
-      libgl1-mesa-glx \
-      libhdf5-dev \
-      openmpi-bin \
-      wget && \
-    rm -rf /var/lib/apt/lists/*        
+      
 
 
     
