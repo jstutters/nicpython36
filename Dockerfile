@@ -1,16 +1,12 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 LABEL maintainer "NVIDIA CORPORATION <cudatools@nvidia.com>"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-ca-certificates apt-transport-https gnupg-curl && \
-    NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
-    NVIDIA_GPGKEY_FPR=ae09fe4bbd223a84b2ccfce3f60f4b3d7fa2af80 && \
-    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub && \
-    apt-key adv --export --no-emit-version -a $NVIDIA_GPGKEY_FPR | tail -n +5 > cudasign.pub && \
-    echo "$NVIDIA_GPGKEY_SUM  cudasign.pub" | sha256sum -c --strict - && rm cudasign.pub && \
-    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-get purge --auto-remove -y gnupg-curl && \
+gnupg2 curl ca-certificates && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get purge --autoremove -y curl && \
 rm -rf /var/lib/apt/lists/*
 
 ENV CUDA_VERSION 10.1.243
@@ -23,6 +19,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 cuda-compat-10-1 && \
 ln -s cuda-10.1 /usr/local/cuda && \
     rm -rf /var/lib/apt/lists/*
+
+ARG IMAGE_NAME
+FROM ${IMAGE_NAME}:10.1-runtime-ubuntu18.04
+ENV CUDNN_VERSION 7.6.4.38
+LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcudnn7=$CUDNN_VERSION-1+cuda10.1 \
+&& \
+    apt-mark hold libcudnn7 && \
+    rm -rf /var/lib/apt/lists/*
+
+
 
 # Required for nvidia-docker v1
 RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
