@@ -57,13 +57,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       bzip2 \
       g++ \
       git \
+      curl \
+      gfortran \
+      liblapack-dev \
+      libopenblas-dev \
+      python-dev \
+      python-tk\
       graphviz \
       libgl1-mesa-glx \
       libhdf5-dev \
       openmpi-bin \
       wget && \
     rm -rf /var/lib/apt/lists/*
-
+  
 
 # Install conda
 ENV CONDA_DIR /opt/conda
@@ -89,29 +95,14 @@ USER root
 ARG python_version=3.6
 
 RUN conda config --append channels conda-forge
-
-        
-# Install git, wget, python-dev, pip, BLAS + LAPACK and other dependencies
-RUN apt-get update && apt-get install -y \
-  gfortran \
-  liblapack-dev \
-  libopenblas-dev \
-  python-dev \
-  python-tk\
-  git \
-  curl \
-  emacs24
-  
-      
-
-
+# ok.......................................
     
 ENV PATH /opt/conda/bin:$PATH
 ENV PATH /opt/conda/envs/idp/bin:$PATH
 
 
 RUN conda update conda
-# ok.......................................
+
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 # RUN echo "source activate idp" > ~/.bashrc
