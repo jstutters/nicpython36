@@ -20,8 +20,8 @@ cuda-compat-10-1 && \
 ln -s cuda-10.1 /usr/local/cuda && \
     rm -rf /var/lib/apt/lists/*
 
-ARG IMAGE_NAME
-FROM ${IMAGE_NAME}:10.1-runtime-ubuntu18.04
+# ARG IMAGE_NAME
+# FROM ${IMAGE_NAME}:10.1-runtime-ubuntu18.04
 ENV CUDNN_VERSION 7.6.4.38
 LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
 
