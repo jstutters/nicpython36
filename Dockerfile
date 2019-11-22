@@ -52,24 +52,6 @@ ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=384,driver<385 brand=tes
 # FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel
 MAINTAINER thisgithub
 
-# Install system packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bzip2 \
-      g++ \
-      git \
-      curl \
-      gfortran \
-      liblapack-dev \
-      libopenblas-dev \
-      python-dev \
-      python-tk\
-      graphviz \
-      libgl1-mesa-glx \
-      libhdf5-dev \
-      openmpi-bin \
-      wget && \
-    rm -rf /var/lib/apt/lists/*
-  
 
 # Install conda
 ENV CONDA_DIR /opt/conda
@@ -95,8 +77,26 @@ USER root
 ARG python_version=3.6
 
 RUN conda config --append channels conda-forge
+# Install system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bzip2 \
+      g++ \
+      git \
+      curl \
+      gfortran \
+      liblapack-dev \
+      libopenblas-dev \
+      python-dev \
+      python-tk\
+      graphviz \
+      libgl1-mesa-glx \
+      libhdf5-dev \
+      openmpi-bin \
+      wget && \
+    rm -rf /var/lib/apt/lists/*
 # ok.......................................
-    
+
+RUN conda list  
 ENV PATH /opt/conda/bin:$PATH
 ENV PATH /opt/conda/envs/idp/bin:$PATH
 
@@ -105,6 +105,7 @@ RUN conda update conda
 
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
+RUN conda list
 # RUN echo "source activate idp" > ~/.bashrc
 # RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 
