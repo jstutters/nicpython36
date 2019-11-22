@@ -33,7 +33,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget && \
     rm -rf /var/lib/apt/lists/*    
-
+RUN echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections
+RUN apt-get install dialog apt-utils -y
 
 # Required for nvidia-docker v1
 RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
