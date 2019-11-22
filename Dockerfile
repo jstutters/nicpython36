@@ -30,7 +30,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 && \
     apt-mark hold libcudnn7 && \
     rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget && \
+    rm -rf /var/lib/apt/lists/*    
 
 
 # Required for nvidia-docker v1
@@ -91,8 +93,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       graphviz \
       libgl1-mesa-glx \
       libhdf5-dev \
-      openmpi-bin \
-      wget && \
+      openmpi-bin && \
     rm -rf /var/lib/apt/lists/*
 # ok.......................................
 
