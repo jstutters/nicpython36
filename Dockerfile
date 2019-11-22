@@ -1,12 +1,16 @@
-FROM ubuntu:18.04
+FROM ubuntu:16.04
 LABEL maintainer "NVIDIA CORPORATION <cudatools@nvidia.com>"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-gnupg2 curl ca-certificates && \
-    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
-    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
-    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-get purge --autoremove -y curl && \
+ca-certificates apt-transport-https gnupg-curl && \
+    NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
+    NVIDIA_GPGKEY_FPR=ae09fe4bbd223a84b2ccfce3f60f4b3d7fa2af80 && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub && \
+    apt-key adv --export --no-emit-version -a $NVIDIA_GPGKEY_FPR | tail -n +5 > cudasign.pub && \
+    echo "$NVIDIA_GPGKEY_SUM  cudasign.pub" | sha256sum -c --strict - && rm cudasign.pub && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get purge --auto-remove -y gnupg-curl && \
 rm -rf /var/lib/apt/lists/*
 
 ENV CUDA_VERSION 10.1.243
@@ -20,8 +24,14 @@ cuda-compat-10-1 && \
 ln -s cuda-10.1 /usr/local/cuda && \
     rm -rf /var/lib/apt/lists/*
 
-# ARG IMAGE_NAME
-# FROM ${IMAGE_NAME}:10.1-runtime-ubuntu18.04
+# Required for nvidia-docker v1
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+
 ENV CUDNN_VERSION 7.6.4.38
 LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
 
@@ -30,18 +40,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 && \
     apt-mark hold libcudnn7 && \
     rm -rf /var/lib/apt/lists/*
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget && \
-    rm -rf /var/lib/apt/lists/*    
-RUN echo "debconf debconf/frontend select Noninteractive" | debconf-set-selections
-RUN apt-get install dialog apt-utils -y
-
-# Required for nvidia-docker v1
-RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
-    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
-
-ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
 # nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES all
@@ -54,6 +52,18 @@ ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=384,driver<385 brand=tes
 # ARG cudnn_version=7.4
 # FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel
 MAINTAINER thisgithub
+
+# Install system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bzip2 \
+      g++ \
+      git \
+      graphviz \
+      libgl1-mesa-glx \
+      libhdf5-dev \
+      openmpi-bin \
+      wget && \
+    rm -rf /var/lib/apt/lists/*
 
 
 # Install conda
@@ -80,34 +90,31 @@ USER root
 ARG python_version=3.6
 
 RUN conda config --append channels conda-forge
-# Install system packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bzip2 \
-      g++ \
-      git \
-      curl \
-      gfortran \
-      liblapack-dev \
-      libopenblas-dev \
-      python-dev \
-      python-tk\
-      graphviz \
-      libgl1-mesa-glx \
-      libhdf5-dev \
-      openmpi-bin && \
-    rm -rf /var/lib/apt/lists/*
-# ok.......................................
 
-RUN conda list  
+        
+# Install git, wget, python-dev, pip, BLAS + LAPACK and other dependencies
+RUN apt-get update && apt-get install -y \
+  gfortran \
+  liblapack-dev \
+  libopenblas-dev \
+  python-dev \
+  python-tk\
+  git \
+  curl \
+  emacs24
+  
+      
+
+
+    
 ENV PATH /opt/conda/bin:$PATH
 ENV PATH /opt/conda/envs/idp/bin:$PATH
 
 
 RUN conda update conda
-
+# ok.......................................
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
-RUN conda list
 # RUN echo "source activate idp" > ~/.bashrc
 # RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 
