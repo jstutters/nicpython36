@@ -128,14 +128,14 @@ RUN conda config --append channels conda-forge
 
         
 # Install git, wget, python-dev, pip, BLAS + LAPACK and other dependencies
-RUN apt-get update && apt-get install -y \
-  gfortran \
-  liblapack-dev \
-  libopenblas-dev \
-  python-dev \
-  python-tk\
-  git \
-  curl \
+# RUN apt-get update && apt-get install -y \
+#  gfortran \
+#  liblapack-dev \
+#  libopenblas-dev \
+#  python-dev \
+#  python-tk\
+#  git \
+#  curl \
   # emacs24
   
       
@@ -161,7 +161,7 @@ RUN conda create -n idp intelpython3_full python=3
 
 # ENV PATH=/miniconda/envs/idp/bin:$PATH
 # RUN conda remove -n tensorflow
-ARG python_version=3.6
+# ARG python_version=3.6
 
 RUN conda config --append channels conda-forge
 RUN conda install -y python=${python_version} && \
