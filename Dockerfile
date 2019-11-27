@@ -136,7 +136,7 @@ RUN apt-get update && apt-get install -y \
   python-tk\
   git \
   curl \
-  emacs24
+  # emacs24
   
       
 
@@ -147,7 +147,7 @@ ENV PATH /opt/conda/envs/idp/bin:$PATH
 
 
 RUN conda update conda
-# ok.......................................
+
 RUN conda config --add channels intel
 RUN conda create -n idp intelpython3_full python=3
 # RUN echo "source activate idp" > ~/.bashrc
