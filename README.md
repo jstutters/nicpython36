@@ -50,10 +50,9 @@ is available on local or remote machine.
 
 Then:
 
-...
 
-singularity pull docker://kbronik/ms_cnn_ucl:latest 
-...
-
+```sh
+  - singularity pull docker://kbronik/ms_cnn_ucl:latest  
+``` 
 
 
