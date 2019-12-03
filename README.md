@@ -47,6 +47,9 @@ After lunching the graphical user interface, user will need to provide necessary
 First user needs to be sure that "singularity" 
 https://singularity.lbl.gov/
 is available on local or remote machine.
+<br>
+ <img height="300" src="hpc.jpeg" />
+ </br>
 
 Then:
 
