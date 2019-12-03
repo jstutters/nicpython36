@@ -43,12 +43,17 @@ After lunching the graphical user interface, user will need to provide necessary
  </br>
  
  # 
-# Running the Program on the HPC cluster (without any additional library/dependency installation):
+# Running the Program on the HPC cluster using NVIDIA GPUs(without any additional library/dependency installation):
 First user needs to be sure that "singularity" 
 https://singularity.lbl.gov/
 is available on local or remote machine.
 
-then:
+Then:
+
+...
+
+singularity pull docker://kbronik/ms_cnn_ucl:latest 
+...
 
 
 
