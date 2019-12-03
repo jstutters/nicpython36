@@ -40,3 +40,7 @@ After lunching the graphical user interface, user will need to provide necessary
 <br>
  <img height="500" src="GUI_NM.jpg" />
  </br>
+ 
+ # 
+# Running the Program on the HPC cluster (without any additional library/dependency installation): 
+ 
