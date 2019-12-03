@@ -54,5 +54,9 @@ Then:
 ```sh
   - singularity pull docker://kbronik/ms_cnn_ucl:latest  
 ``` 
+After running the above, a singularity image using docker hub (docker://kbronik/ms_cnn_ucl:latest) will be generated:
+```sh
+  - path to singularity//..///ms_cnn_ucl_latest.sif  
+``` 
 
-
+                   
