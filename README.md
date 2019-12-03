@@ -63,5 +63,10 @@ After running the above, a singularity image using docker hub (docker://kbronik/
 ```sh
   - path to singularity//..///ms_cnn_ucl_latest.sif  
 ``` 
+Finally:
+
+```sh
+  - singularity run --nv  path to singularity//..///ms_cnn_ucl_latest.sif  python path to nicpython36/nic_train_network_batch.py (or other nic-python code for training or testing)
+```
 
                    
