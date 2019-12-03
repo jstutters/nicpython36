@@ -66,7 +66,17 @@ After running the above, a singularity image using docker hub (docker://kbronik/
 Finally:
 
 ```sh
-  - singularity run --nv  path to singularity//..///ms_cnn_ucl_latest.sif  python path to nicpython36/nic_train_network_batch.py (or other nic-python code for training or testing)
+  - singularity run --nv   (path to singularity)//..///ms_cnn_ucl_latest.sif  python  (path to nicpython36)/nic_train_network_batch.py (or other nic-python code)
 ```
+# For an interactive session:
 
+```sh
+  - singularity shell   (path to singularity)//..///ms_cnn_ucl_latest.sif 
+```
+Then:
+
+```sh
+  - source activate idp
+  - python (path to nicpython36)/app.py
+```
                    
