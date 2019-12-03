@@ -19,8 +19,9 @@
   <dt>(3) Supporting Python 3</dt>
   <dt>(4) Integrated Tensorborad [to provide the measurements and visualisations of TensorFlow execution (to understand, debug, and optimisation of  the TensorFlow programs)]</dt>
   <dt>(5) Checking whether a file or directory is relevant for Training and Testing</dt> 
-  <dt>(6) Bias correction of masks using FSL</dt>
-  <dt>(6) Registration, moving all images to the Flair, T1 or Standard space</dt>
+  <dt>(6) Easy HPC( High Performance Computing) support</dt> 
+  <dt>(7) Bias correction of masks using FSL</dt>
+  <dt>(8) Registration, moving all images to the Flair, T1 or Standard space</dt>
 </dl>
 
 <br>
