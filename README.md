@@ -44,12 +44,14 @@ After lunching the graphical user interface, user will need to provide necessary
  
  # 
 # Running the Program on the HPC cluster using NVIDIA GPUs(without any additional library/dependency installation):
-First user needs to be sure that "singularity" 
-https://singularity.lbl.gov/
-is available on local or remote machine.
 <br>
  <img height="200" src="hpc.jpeg" />
  </br>
+ 
+First user needs to be sure that "singularity" 
+https://singularity.lbl.gov/
+is available on local or remote machine.
+
 
 Then:
 
