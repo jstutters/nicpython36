@@ -24,7 +24,7 @@
 </dl>
 
 <br>
- <img height="100" src="BR.jpg" />
+ <img height="500" src="BR.jpg" />
  </br>
 
 
