@@ -48,7 +48,7 @@ First user needs to be sure that "singularity"
 https://singularity.lbl.gov/
 is available on local or remote machine.
 <br>
- <img height="300" src="hpc.jpeg" />
+ <img height="200" src="hpc.jpeg" />
  </br>
 
 Then:
