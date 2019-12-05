@@ -67,7 +67,7 @@ if options['debug']:
 device = str(options['gpu_number'])
 print("DEBUG: ", device)
 os.environ['KERAS_BACKEND'] = 'tensorflow'
-os.environ["CUDA_VISIBLE_DEVICES"] = device
+# os.environ["CUDA_VISIBLE_DEVICES"] = device
 
 # set paths taking into account the host OS
 host_os = platform.system()
