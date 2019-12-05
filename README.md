@@ -46,6 +46,7 @@ After lunching the graphical user interface, user will need to provide necessary
  <img height="200" src="hpc.jpeg" />
  </br>
  
+ 
 First, user will need to be sure that "singularity" 
 https://singularity.lbl.gov/
 is available on local or remote machine.
@@ -66,6 +67,11 @@ Finally:
 ```sh
   - singularity run --nv   (path to singularity)//..///ms_cnn_ucl_latest.sif  python  (path to nicpython36)/nic_train_network_batch.py (or other nic-python code)
 ```
+<br>
+ <img height="200" src="note_hpc.jpeg" />
+ </br>
+
+
 # For an interactive session:
 
 ```sh
