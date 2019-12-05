@@ -68,7 +68,7 @@ Finally:
   - singularity run --nv   (path to singularity)//..///ms_cnn_ucl_latest.sif  python  (path to nicpython36)/nic_train_network_batch.py (or other nic-python code)
 ```
 <br>
- <img height="200" src="note_hpc.jpeg" />
+ <img height="200" src="note_hpc.jpg" />
  </br>
 
 
