@@ -64,9 +64,9 @@ RUN  pip install --user -U setuptools \
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl \
-        unzip
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         curl \
+#         unzip
 
 
 ARG USE_PYTHON_3_NOT_2
@@ -107,6 +107,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       bzip2 \
       g++ \
       git \
+      curl \
+      unzip \
       graphviz \
       libgl1-mesa-glx \
       libhdf5-dev \
