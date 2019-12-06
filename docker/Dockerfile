@@ -1,48 +1,15 @@
 ARG UBUNTU_VERSION=18.04
 
-ARG ARCH=
-ARG CUDA=10.0
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
-# ARCH and CUDA are specified again because the FROM directive resets ARGs
-# (but their default value is retained if set previously)
-ARG ARCH
-ARG CUDA
-ARG CUDNN=7.6.2.24-1
-
 # Needed for string substitution
 SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        cuda-cublas-${CUDA/./-} \
-        cuda-cufft-${CUDA/./-} \
-        cuda-curand-${CUDA/./-} \
-        cuda-cusolver-${CUDA/./-} \
-        cuda-cusparse-${CUDA/./-} \
         curl \
-        libcudnn7=${CUDNN}+cuda${CUDA} \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
         pkg-config \
         software-properties-common \
         unzip
 
-RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer5=5.1.5-1+cuda${CUDA} \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*)
-
-# For CUDA profiling, TensorFlow requires CUPTI.
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
-# Link the libcuda stub to the location where tensorflow is searching for it and reconfigure
-# dynamic linker run-time bindings .................................
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-    && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-    && echo "/usr/local/cuda/extras/CUPTI/lib64" > /etc/ld.so.conf.d/cupti.conf \
-    && ldconfig
 
 ARG USE_PYTHON_3_NOT_2
 ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
@@ -70,23 +37,11 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 #   tf-nightly-gpu
 # Set --build-arg TF_PACKAGE_VERSION=1.11.0rc0 to install a specific version.
 # Installs the latest version by default.
-ARG TF_PACKAGE=tensorflow-gpu
+ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=
 RUN ${PIP} install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
 
-# COPY bashrc /etc/bash.bashrc
-# RUN chmod a+rwx /etc/bash.bashrc
 
-# nvidia-container-runtime
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
-ENV NVIDIA_REQUIRE_CUDA "cuda>=10.1 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411"
-
-
-
-# ARG cuda_version=10.0
-# ARG cudnn_version=7.4
-# FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel
 MAINTAINER thisgithub
 
 # Install system packages
@@ -177,8 +132,8 @@ RUN conda install -y python=${python_version} && \
       scipy \
       Pillow \
       click \
-      tensorflow-gpu \
-      cntk-gpu && \
+      tensorflow \
+      cntk && \
     conda install \
       bcolz \
       h5py \
@@ -188,12 +143,10 @@ RUN conda install -y python=${python_version} && \
       notebook \
       pandas \
       pydot \
-      pygpu \
       pyyaml \
       scikit-learn \
       six \
       theano \
-      pygpu \
       mkdocs \
       && \
     git clone git://github.com/keras-team/keras.git /src && pip install -e /src[tests] && \
