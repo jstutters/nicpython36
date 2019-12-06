@@ -252,7 +252,7 @@ ADD nic_infer_segmentation_batch.py $HOME/src/
 ADD tensorboardlogs $HOME/src/
 # add permissions (odd)
 # RUN chown docker -R nets
-# RUN chown docker -R config
+# RUN chown docker -R config 
 
 USER docker
 WORKDIR $HOME/src
