@@ -8,7 +8,8 @@ ENV USER mpirun
 
 ENV DEBIAN_FRONTEND=noninteractive \
     HOME=/home/${USER} 
-
+    
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends sudo apt-utils && \
