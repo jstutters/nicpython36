@@ -599,10 +599,10 @@ def get_mask_voxels(mask):
 
 
 
-    if sc_one_zero(mask[np.nonzero(mask)]):
-        print("lesion mask is not real binary, please check the inputs and try again!")
-        time.sleep(1)
-        os.kill(os.getpid(), signal.SIGTERM)
+    # # if sc_one_zero(mask[np.nonzero(mask)]):
+     # #   print("lesion mask is not real binary, please check the inputs and try again!")
+     # #   time.sleep(1)
+     # #   os.kill(os.getpid(), signal.SIGTERM)
     indices = np.stack(np.nonzero(mask), axis=1)
     indices = [tuple(idx) for idx in indices]
     return indices
