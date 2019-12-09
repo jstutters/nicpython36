@@ -63,7 +63,7 @@ RUN  pip install --user -U setuptools \
 # ------------------------------------------------------------
 
 # Needed for string substitution
-SHELL ["/bin/bash", "-c"]
+# SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
 # RUN apt-get update && apt-get install -y --no-install-recommends \
 #         curl \
