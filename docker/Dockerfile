@@ -15,6 +15,7 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends sudo apt-utils && \
     apt-get install -y --no-install-recommends openssh-server \
         python-dev python-numpy python-pip python-virtualenv python-scipy \
+        bzip2 g++ git curl unzip graphviz libgl1-mesa-glx libhdf5-dev wget \
         gcc gfortran libopenmpi-dev openmpi-bin openmpi-common openmpi-doc binutils && \
     apt-get clean && apt-get purge && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -102,17 +103,7 @@ SHELL ["/bin/bash", "-c"]
 
 
 # Install system packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bzip2 \
-      g++ \
-      git \
-      curl \
-      unzip \
-      graphviz \
-      libgl1-mesa-glx \
-      libhdf5-dev \
-      openmpi-bin \
-      wget
+
 
 
 # Install conda
