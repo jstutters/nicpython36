@@ -116,6 +116,7 @@ RUN  pip install --user -U setuptools \
 #    /bin/bash /Miniconda3-4.2.12-Linux-x86_64.sh -f -b -p $CONDA_DIR 
 # RUN  rm Miniconda3-4.2.12-Linux-x86_64.sh 
 # RUN  echo export PATH=$CONDA_DIR/bin:'$PATH' > /etc/profile.d/conda.sh
+USER root
 
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
     wget --quiet https://repo.continuum.io/archive/Anaconda3-5.0.0.1-Linux-x86_64.sh -O ~/anaconda.sh && \
@@ -137,7 +138,7 @@ RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
     chown $NB_USER /src
 
 # USER $NB_USER
-USER root
+
 
 RUN rm -fr ${HOME}/.openmpi && mkdir -p ${HOME}/.openmpi
 ADD default-mca-params.conf ${HOME}/.openmpi/mca-params.conf
