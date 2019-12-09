@@ -129,20 +129,20 @@ ENV PATH /opt/conda/bin:$PATH
 
 
 # Install Python packages and keras
-ENV NB_USER keras
-ENV NB_UID 1000
+# ENV NB_USER keras
+# ENV NB_UID 1000
 
-RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-    chown $NB_USER $CONDA_DIR -R && \
-    mkdir -p /src && \
-    chown $NB_USER /src
+# RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
+#     chown $NB_USER $CONDA_DIR -R && \
+#    mkdir -p /src && \
+#    chown $NB_USER /src
 
 # USER $NB_USER
 
 
-RUN rm -fr ${HOME}/.openmpi && mkdir -p ${HOME}/.openmpi
-ADD default-mca-params.conf ${HOME}/.openmpi/mca-params.conf
-RUN chown -R ${USER}:${USER} ${HOME}/.openmpi
+# RUN rm -fr ${HOME}/.openmpi && mkdir -p ${HOME}/.openmpi
+# ADD default-mca-params.conf ${HOME}/.openmpi/mca-params.conf
+# RUN chown -R ${USER}:${USER} ${HOME}/.openmpi
 
 ARG python_version=3.6
 
@@ -249,6 +249,8 @@ ADD cnn_scripts.py $HOME/src/
 # ADD nets $HOME/src/nets
 ADD libs $HOME/src/libs
 ADD utils $HOME/src/utils
+ADD ssh $HOME/src/ssh
+ADD docker $HOME/src/docker
 ADD logonic.png $HOME/src/
 ADD nic_train_network_batch.py $HOME/src/
 ADD nic_infer_segmentation_batch.py $HOME/src/
