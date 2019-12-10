@@ -202,8 +202,10 @@ RUN conda install -y python=${python_version} && \
       scipy \
       Pillow \
       click \
-      horovod \
+      PyTorch \
+      MXNet \
       tensorflow \
+      horovod \
       cntk && \
     conda install \
       bcolz \
