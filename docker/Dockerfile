@@ -188,7 +188,8 @@ RUN conda create -n idp intelpython3_full python=3
 # ENV PATH=/miniconda/envs/idp/bin:$PATH
 # RUN conda remove -n tensorflow
 # ARG python_version=3.6
-
+## RUN pip install torch==${PYTORCH_VERSION} torchvision==${TORCHVISION_VERSION}
+## RUN pip install mxnet==${MXNET_VERSION}
 RUN conda config --append channels conda-forge
 RUN conda install -y python=${python_version} && \
     # pip install --upgrade pip && \
@@ -202,8 +203,8 @@ RUN conda install -y python=${python_version} && \
       scipy \
       Pillow \
       click \
-      PyTorch \
-      MXNet \
+      torch \
+      mxnet \
       tensorflow \
       horovod \
       cntk && \
