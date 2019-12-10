@@ -57,6 +57,10 @@ RUN pip install --upgrade pip
 USER ${USER}
 RUN  pip install --user -U setuptools \
     && pip install --user mpi4py
+    
+  # Set default shell to /bin/bash
+SHELL ["/bin/bash", "-cu"]  
+   
 
 # ------------------------------------------------------------
 # Configure OpenMPI
@@ -219,7 +223,21 @@ RUN conda install -y python=${python_version} && \
     pip install git+git://github.com/keras-team/keras.git && \
     conda clean -yt
 # install CNN related packages
-ADD requirements.txt /requirements.txt
+ # Install Horovod
+RUN HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
+    pip install --no-cache-dir horovod
+
+# Install OpenSSH for MPI to communicate between containers
+RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
+    mkdir -p /var/run/sshd
+
+# Allow OpenSSH to talk to containers without asking for confirmation
+RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new && \
+    echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
+    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
+
+
+# ADD requirements.txt /requirements.txt
 # RUN conda install numpy scipy mkl
 # RUN conda install theano pygpu
 # RUN pip install pip --upgrade
