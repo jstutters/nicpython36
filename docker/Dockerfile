@@ -202,6 +202,7 @@ RUN conda install -y python=${python_version} && \
       scipy \
       Pillow \
       click \
+      horovod \
       tensorflow \
       cntk && \
     conda install \
@@ -224,8 +225,8 @@ RUN conda install -y python=${python_version} && \
     conda clean -yt
 # install CNN related packages
  # Install Horovod
-RUN HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
-    pip install --no-cache-dir horovod
+# RUN HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
+  #  pip install --no-cache-dir horovod
 
 # Install OpenSSH for MPI to communicate between containers
 RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
