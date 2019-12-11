@@ -10,14 +10,22 @@ ENV DEBIAN_FRONTEND=noninteractive \
     HOME=/home/${USER} 
     
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
-
+     #   libfreetype6-dev \
+      #  libhdf5-serial-dev \
+     #   libzmq3-dev \
+     #   pkg-config \
+     #   software-properties-common \
+     #   unzip
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends sudo apt-utils && \
     apt-get install -y --no-install-recommends openssh-server \
-        python-dev python-numpy python-pip python-virtualenv python-scipy \
+        python3-tk python-dev python-numpy python-pip python-virtualenv python-scipy \
         bzip2 g++ git curl unzip graphviz libgl1-mesa-glx libhdf5-dev wget \
+        libfreetype6-dev libhdf5-serial-dev libzmq3-dev pkg-config software-properties-common unzip \ 
         gcc gfortran libopenmpi-dev openmpi-bin openmpi-common openmpi-doc binutils && \
     apt-get clean && apt-get purge && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Some TF tools expect a "python" binary
+ 
 
 RUN mkdir /var/run/sshd
 RUN echo 'root:${USER}' | chpasswd
@@ -53,6 +61,7 @@ RUN chmod -R 600 ${SSHDIR}* && \
     chown -R ${USER}:${USER} ${SSHDIR}
 
 RUN pip install --upgrade pip
+
 
 USER ${USER}
 RUN  pip install --user -U setuptools \
@@ -226,11 +235,18 @@ RUN conda install -y python=${python_version} && \
     git clone git://github.com/keras-team/keras.git /src && pip install -e /src[tests] && \
     pip install git+git://github.com/keras-team/keras.git && \
     conda clean -yt
+    
+RUN python3 -m pip install --user pipx
+RUN python3 -m pipx ensurepath
+RUN python3 -m pip install -U pipx
+RUN pipx install python-dev-tools
+ENV TOOLS_PATH ls -l ~/.local/bin/whataformatter | sed -e "s/.*-> //" | sed -e "s#/bin.*#/bin#" TOOLS_PATH
+RUN pipx upgrade python-dev-tools   
 # install CNN related packages
  # Install Horovod
 # RUN HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
   #  pip install --no-cache-dir horovod
-
+RUN ln -s $(which python) /usr/local/bin/python
 # Install OpenSSH for MPI to communicate between containers
 RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
     mkdir -p /var/run/sshd
