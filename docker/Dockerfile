@@ -236,12 +236,12 @@ RUN conda install -y python=${python_version} && \
     pip install git+git://github.com/keras-team/keras.git && \
     conda clean -yt
     
-RUN python3 -m pip install --user pipx
-RUN python3 -m pipx ensurepath
-RUN python3 -m pip install -U pipx
-RUN pipx install python-dev-tools
-ENV TOOLS_PATH ls -l ~/.local/bin/whataformatter | sed -e "s/.*-> //" | sed -e "s#/bin.*#/bin#" TOOLS_PATH
-RUN pipx upgrade python-dev-tools   
+# RUN python3 -m pip install --user pipx
+# RUN python3 -m pipx ensurepath
+# RUN python3 -m pip install -U pipx
+# RUN pipx install python-dev-tools
+# ENV TOOLS_PATH ls -l ~/.local/bin/whataformatter | sed -e "s/.*-> //" | sed -e "s#/bin.*#/bin#" TOOLS_PATH
+# RUN pipx upgrade python-dev-tools   
 # install CNN related packages
  # Install Horovod
 # RUN HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITH_MXNET=1 \
