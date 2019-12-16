@@ -83,4 +83,7 @@ Then:
   - source activate idp
   - python (path to nicpython36)/app.py
 ```
-                   
+# For an interactive session (TensorFlow on CPU only): 
+```sh
+  - singularity exec  docker://kbronik/ms-ucl-cnn-cpu:CPU_Latest  python  (path to nicpython36)/app.py 
+```
