@@ -15,6 +15,7 @@ import os
 import argparse
 import sys
 import platform
+import tempfile
 from timeit import time
 import configparser
 from  utils.load_options import load_options, print_options
@@ -44,6 +45,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--docker',
                     dest='docker',
                     action='store_true')
+parser.add_argument('--configuration',
+                    default=os.path.join(CURRENT_PATH, 'config', 'configuration.cfg'),
+                    dest='configuration_path')
+parser.add_argument('--weights',
+                    default=os.path.join(CURRENT_PATH, 'nets'),
+                    dest='weights_path')
 parser.set_defaults(docker=False)
 args = parser.parse_args()
 container = args.docker
@@ -55,7 +62,7 @@ container = args.docker
 default_config = configparser.SafeConfigParser()
 default_config.read(os.path.join(CURRENT_PATH, 'config', 'default.cfg'))
 user_config = configparser.RawConfigParser()
-user_config.read(os.path.join(CURRENT_PATH, 'config', 'configuration.cfg'))
+user_config.read(args.configuration_path)
 
 # read user's configuration file
 options = load_options(default_config, user_config)
@@ -176,7 +183,7 @@ from CNN.build_model import cascade_model
 # --------------------------------------------------
 options['full_train'] = True
 options['load_weights'] = True
-options['weight_paths'] = os.path.join(CURRENT_PATH, 'nets')
+options['weight_paths'] = args.weight_path
 options['net_verbose'] = 0
 
 model = cascade_model(options)
@@ -219,8 +226,7 @@ for scan in scan_list:
     # --------------------------------------------------
 
     current_folder = os.path.join(options['test_folder'], scan)
-    options['tmp_folder'] = os.path.normpath(
-        os.path.join(current_folder,  'tmp'))
+    options['tmp_folder'] = tempfile.mkdtemp()
 
     # --------------------------------------------------
     # preprocess scans
