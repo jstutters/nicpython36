@@ -660,10 +660,10 @@ def test_scan(model,
             print("> DEBUG ", scans[0], "Voxels to classify:", all_voxels)
 
     # compute lesion segmentation in batches of size options['batch_size']
-    for batch, centers = load_test_patches(test_x_data,
-                                           options['patch_size'],
-                                           options['batch_size'],
-                                           candidate_mask):
+    for batch, centers in load_test_patches(test_x_data,
+                                            options['patch_size'],
+                                            options['batch_size'],
+                                            candidate_mask):
         if options['debug'] is True:
             print("> DEBUG: testing current_batch:", batch.shape, end=' ')
         print (" \n")
