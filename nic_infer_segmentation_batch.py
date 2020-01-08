@@ -183,7 +183,7 @@ from CNN.build_model import cascade_model
 # --------------------------------------------------
 options['full_train'] = True
 options['load_weights'] = True
-options['weight_paths'] = args.weight_path
+options['weight_paths'] = args.weights_path
 options['net_verbose'] = 0
 
 model = cascade_model(options)
