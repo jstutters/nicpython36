@@ -98,7 +98,7 @@ def check_oututs(current_folder, options, choice='testing'):
 
 
     """
-    erf =os.path.join(CURRENT_PATH, 'OutputIssueReportfile.txt')
+    erf =os.path.join(options['tmp_folder'], 'OutputIssueReportfile.txt')
     f = open(erf, "a")
 
     if os.path.isdir(os.path.join(options['test_folder'], current_folder)):
