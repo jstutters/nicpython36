@@ -17,7 +17,7 @@ import sys
 import platform
 import tempfile
 from timeit import time
-import configparser
+from configparser import ConfigParser
 from  utils.load_options import load_options, print_options
 from  utils.preprocess import preprocess_scan
 from  utils.postprocess import invert_registration
@@ -59,9 +59,9 @@ container = args.docker
 # load default options and update them with user information
 # from utils.load_options import *
 # --------------------------------------------------
-default_config = configparser.SafeConfigParser()
+default_config = ConfigParser()
 default_config.read(os.path.join(CURRENT_PATH, 'config', 'default.cfg'))
-user_config = configparser.RawConfigParser()
+user_config = ConfigParser()
 user_config.read(args.configuration_path)
 
 # read user's configuration file
