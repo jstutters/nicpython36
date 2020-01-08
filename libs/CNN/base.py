@@ -556,22 +556,13 @@ def load_test_patches(test_x_data,
     else:
         selected_voxels = get_mask_voxels(voxel_candidates)
 
-    # yield data for testing with size equal to batch_size
-    # for i in range(0, len(selected_voxels), batch_size):
-    #     c_centers = selected_voxels[i:i+batch_size]
-    #     X = []
-    #     for m, image_modality in zip(modalities, images):
-    #         X.append(get_patches(image_modality[0], c_centers, patch_size))
-    #     yield np.stack(X, axis=1), c_centers
+    for i in range(0, len(selected_voxels), batch_size):
+        c_centers = selected_voxels[i:i + batch_size]
+        X = []
+        for m, image_modality in zip(modalities, images):
+            X.append(get_patches(image_modality[0], c_centers, patch_size))
+        yield np.stack(X, axis=1), c_centers
 
-    X = []
-
-    for image_modality in images:
-        X.append(get_patches(image_modality[0], selected_voxels, patch_size))
-    # x_ = np.empty((9200, 400, 400, 3)
-    # Xs = np.zeros_like (X)
-    Xs = np.stack(X, axis=1)
-    return Xs, selected_voxels
 
 def sc_one_zero(array):
     for x in array.flat:
@@ -669,23 +660,23 @@ def test_scan(model,
             print("> DEBUG ", scans[0], "Voxels to classify:", all_voxels)
 
     # compute lesion segmentation in batches of size options['batch_size']
-    batch, centers = load_test_patches(test_x_data,
-                                       options['patch_size'],
-                                       options['batch_size'],
-                                       candidate_mask)
-    if options['debug'] is True:
-        print("> DEBUG: testing current_batch:", batch.shape, end=' ')
-    print (" \n")
-    print("Prediction or loading learned model started........................> \n")
+    for batch, centers = load_test_patches(test_x_data,
+                                           options['patch_size'],
+                                           options['batch_size'],
+                                           candidate_mask):
+        if options['debug'] is True:
+            print("> DEBUG: testing current_batch:", batch.shape, end=' ')
+        print (" \n")
+        print("Prediction or loading learned model started........................> \n")
 
-    prediction_time = time.time()
-    y_pred = model['net'].predict(np.squeeze(batch),
-                                  options['batch_size'])
-    print("Prediction or loading learned model: ", round(time.time() - prediction_time), "sec")
+        prediction_time = time.time()
+        y_pred = model['net'].predict(np.squeeze(batch),
+                                      options['batch_size'])
+        print("Prediction or loading learned model: ", round(time.time() - prediction_time), "sec")
 
 
-    [x, y, z] = np.stack(centers, axis=1)
-    seg_image[x, y, z] = y_pred[:, 1]
+        [x, y, z] = np.stack(centers, axis=1)
+        seg_image[x, y, z] = y_pred[:, 1]
     if options['debug'] is True:
             print("...done!")
 
