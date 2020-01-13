@@ -128,6 +128,9 @@ def main():
     options['net_verbose'] = 0
     options['use_pretrained_model'] = False
 
+    from CNN.base import test_cascaded_model
+    from CNN.build_model import cascade_model
+
     model = cascade_model(options)
 
     # --------------------------------------------------
