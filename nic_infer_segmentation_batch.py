@@ -111,7 +111,7 @@ def main():
     device = ""
     print("DEBUG: ", device)
     os.environ['KERAS_BACKEND'] = 'tensorflow'
-    # os.environ["CUDA_VISIBLE_DEVICES"] = device
+    os.environ["CUDA_VISIBLE_DEVICES"] = device
 
     options = set_utility_paths(options, CURRENT_PATH)
 
@@ -148,7 +148,7 @@ def main():
         options['test_folder'] = os.path.normpath(options['test_folder'])
 
     # set task to train
-    options['task'] = 'inference'
+    options['task'] = 'testing'
 
     scan_list = os.listdir(options['test_folder'])
     scan_list.sort()
