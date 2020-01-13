@@ -124,7 +124,7 @@ def main():
     # --------------------------------------------------
     options['full_train'] = True
     options['load_weights'] = True
-    options['weight_paths'] = os.path.join(CURRENT_PATH, 'nets')
+    options['weight_paths'] = args.weights_path
     options['net_verbose'] = 0
     options['use_pretrained_model'] = False
 
