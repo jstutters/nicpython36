@@ -110,7 +110,7 @@ def main():
     options = read_options(CURRENT_PATH, args.configuration_path)
 
     # tensorflow backend
-    device = str(options['gpu_number'])
+    device = ""
     print("DEBUG: ", device)
     os.environ['KERAS_BACKEND'] = 'tensorflow'
     # os.environ["CUDA_VISIBLE_DEVICES"] = device
