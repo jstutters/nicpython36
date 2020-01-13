@@ -200,3 +200,7 @@ def main():
                 pass
 
     print("> INFO: All processes have been finished. Have a good day!")
+
+
+if __name__ == "__main__":
+    main()
