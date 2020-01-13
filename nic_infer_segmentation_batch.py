@@ -73,8 +73,7 @@ def read_options(app_path, user_config_path):
     # read user's configuration file
     options = load_options(default_config, user_config)
 
-    if options['debug']:
-        print_options(options)
+    print_options(options)
     return options
 
 
