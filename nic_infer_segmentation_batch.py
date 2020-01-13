@@ -38,7 +38,7 @@ def print_credits():
     print("##################################################\n")
 
 
-def parse_arguments():
+def parse_arguments(app_path):
     # load options from input
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -49,12 +49,12 @@ def parse_arguments():
     )
     parser.add_argument(
         '--configuration',
-        default=os.path.join(CURRENT_PATH, 'config', 'configuration.cfg'),
+        default=os.path.join(app_path, 'config', 'configuration.cfg'),
         dest='configuration_path'
     )
     parser.add_argument(
         '--weights',
-        default=os.path.join(CURRENT_PATH, 'nets'),
+        default=os.path.join(app_path, 'nets'),
         dest='weights_path'
     )
     return parser.parse_args()
@@ -103,7 +103,7 @@ def main():
     CURRENT_PATH = os.path.split(os.path.realpath(__file__))[0]
     sys.path.append(os.path.join(CURRENT_PATH, 'libs'))
 
-    args = parse_arguments()
+    args = parse_arguments(CURRENT_PATH)
 
     container = args.docker
 
