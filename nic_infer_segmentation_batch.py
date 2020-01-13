@@ -73,7 +73,6 @@ def read_options(app_path, user_config_path):
     # read user's configuration file
     options = load_options(default_config, user_config)
 
-    print_options(options)
     return options
 
 
@@ -126,6 +125,9 @@ def main():
     options['weight_paths'] = args.weights_path
     options['net_verbose'] = 0
     options['use_pretrained_model'] = False
+    options['pre_processing'] = True
+
+    print_options(options)
 
     from CNN.base import test_cascaded_model
     from CNN.build_model import cascade_model
