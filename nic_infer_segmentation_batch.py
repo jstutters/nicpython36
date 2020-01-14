@@ -204,11 +204,11 @@ else:
 # set task to train
 options['task'] = 'inference'
 
-scan_list = os.listdir(options['test_folder'])
-scan_list.sort()
-# check and remove the folder which dose not contain the necessary modalities before prepossessing step
-for check in scan_list:
-    check_oututs(check, options)
+# scan_list = os.listdir(options['test_folder'])
+# scan_list.sort()
+# # check and remove the folder which dose not contain the necessary modalities before prepossessing step
+# for check in scan_list:
+    # check_oututs(check, options)
 
 
 
