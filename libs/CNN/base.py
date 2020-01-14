@@ -563,15 +563,7 @@ def load_test_patches(options, test_x_data,
     #     for m, image_modality in zip(modalities, images):
     #         X.append(get_patches(image_modality[0], c_centers, patch_size))
     #     yield np.stack(X, axis=1), c_centers
-    if options['batch_prediction']:
-        for i in range(0, len(selected_voxels), batch_size):
-            c_centers = selected_voxels[i:i + batch_size]
-            X = []
-            for m, image_modality in zip(modalities, images):
-                X.append(get_patches(image_modality[0], c_centers, patch_size))
-            yield np.stack(X, axis=1), c_centers
-  
-    else:
+    if not  options['batch_prediction']:
         X = []
 
         for image_modality in images:
@@ -580,6 +572,16 @@ def load_test_patches(options, test_x_data,
     # Xs = np.zeros_like (X)
         Xs = np.stack(X, axis=1)
     return Xs, selected_voxels
+    
+    if options['batch_prediction']:
+        for i in range(0, len(selected_voxels), batch_size):
+            c_centers = selected_voxels[i:i + batch_size]
+            X = []
+            for m, image_modality in zip(modalities, images):
+                X.append(get_patches(image_modality[0], c_centers, patch_size))
+            yield np.stack(X, axis=1), c_centers
+  
+
 
 
 
