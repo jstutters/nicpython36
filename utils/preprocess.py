@@ -341,11 +341,20 @@ def bias_correction(options):
 
     """
     scan = options['tmp_scan']
-    current_folder = os.path.join(options['train_folder'], scan)
-    options['bias_folder'] = os.path.normpath(os.path.join(current_folder,'bias'))
+    if options['task'] == 'training':
+         current_folder = os.path.join(options['train_folder'], scan)
+         options['bias_folder'] = os.path.normpath(os.path.join(current_folder,'bias'))
+    else:
+        current_folder = os.path.join(options['test_folder'], scan)
+        options['bias_folder'] = os.path.normpath(os.path.join(current_folder,'bias'))    
     try:
         # os.rmdir(os.path.join(current_folder,  'tmp'))
-        os.mkdir(options['bias_folder'])
+        if options['task'] == 'training':
+           os.mkdir(options['bias_folder'])
+           print ("bias folder is created for training!")
+        else: 
+           os.mkdir(options['bias_folder'])
+           print ("bias folder is created for testing!")  
     except:
         if os.path.exists(options['bias_folder']) is False:
             print("> ERROR:",  scan, "I can not create bias folder for", current_folder, "Quiting program.")
@@ -388,11 +397,12 @@ def bias_correction(options):
                                          input_scan),
                             os.path.join(options['bias_folder'],
                                          input_scan))
+                                        
                 fslm = 'fslmaths'
                 ft = 'fast'
                 fslsf = 'fslsmoothfill'
-                subprocess.check_output([fslm, os.path.join(options['bias_folder'], input_scan),
-                                         '-mul', '0', os.path.join(options['bias_folder'], mod+'lesionmask.nii.gz')])
+                output = subprocess.check_output([fslm, os.path.join(options['bias_folder'], input_scan),
+                                         '-mul', '0', os.path.join(options['bias_folder'], mod+'lesionmask.nii.gz')], stderr=subprocess.STDOUT)
                 subprocess.check_output([fslm, os.path.join(options['bias_folder'], mod+'lesionmask.nii.gz'),
                                          '-bin', os.path.join(options['bias_folder'], mod+'lesionmask.nii.gz')])
                 subprocess.check_output([fslm, os.path.join(options['bias_folder'], mod+'lesionmask.nii.gz'),
@@ -461,10 +471,12 @@ def bias_correction(options):
                 print(CYELLOW + "Bias correction of", CRED + mod  + CEND , "(is completed!)" + CEND)                                                          
 
 
-
+         
                                              
             except:
-                print("> ERROR:", scan, "Bias correction of  ", mod, "quiting program.")
+                
+                print("err: '{}'".format(output))
+                print("> ERROR:", scan, "Bias correction of  ", mod,  "quiting program.")
                 time.sleep(1)
                 os.kill(os.getpid(), signal.SIGTERM)
 
