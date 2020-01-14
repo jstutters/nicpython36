@@ -514,7 +514,8 @@ def load_train_patches(x_data,
 def load_test_patches(test_x_data,
                       patch_size,
                       batch_size,
-                      voxel_candidates = None,
+                      batch_prediction=False,
+                      voxel_candidates=None,
                       datatype=np.float32):
     """
     Function generator to load test patches with size equal to patch_size,
@@ -683,7 +684,8 @@ def test_scan(model,
         for batch, centers in load_test_patches(test_x_data,
                                             options['patch_size'],
                                             options['batch_size'],
-                                            candidate_mask):
+                                            batch_prediction=options['batch_prediction'],
+                                            voxel_candidates=candidate_mask):
             if options['debug'] is True:
                print("> DEBUG: testing current_batch:", batch.shape, end=' ')
             print (" \n")
@@ -707,7 +709,8 @@ def test_scan(model,
         batch, centers = load_test_patches(test_x_data,
                                        options['patch_size'],
                                        options['batch_size'],
-                                       candidate_mask)
+                                       batch_prediction=options['batch_prediction'],
+                                       voxel_candidates=candidate_mask)
         if options['debug'] is True:
             print("> DEBUG: testing current_batch:", batch.shape, end=' ')
         print (" \n")
