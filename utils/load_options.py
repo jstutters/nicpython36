@@ -94,6 +94,9 @@ def load_options(default_config, user_config):
     options['bias_correction'] = (default_config.get('database',
                                                      'bias_correction'))
 
+    options['batch_prediction'] = (default_config.get('database',
+                                                     'batch_prediction'))                                                 
+
     options['skull_stripping'] = (default_config.get('database',
                                                      'skull_stripping'))
     options['save_tmp'] = (default_config.get('database', 'save_tmp'))

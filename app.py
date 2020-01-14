@@ -100,6 +100,7 @@ class wm_seg:
         self.param_model_tag = StringVar()
         self.param_register_modalities = BooleanVar()
         self.param_bias_correction = BooleanVar()
+        self.param_batch_prediction = BooleanVar()
         self.param_register_modalities_Kind = StringVar()
         self.param_skull_stripping = BooleanVar()
         self.param_denoise = BooleanVar()
@@ -369,6 +370,12 @@ class wm_seg:
 
         self.param_inference_model.set('None')
         self.test_pretrainTxt.grid(row=5, column=0, sticky='E', padx=5, pady=5)
+        self.checkBatchprediction = Checkbutton(self.test_model_frame,
+                                    text="Batch Prediction",
+                                    var=self.param_batch_prediction)
+        self.checkBatchprediction.grid(row=5, column=2, sticky='W') 
+
+       
 
         # START button links cto docker task
         self.inferenceBtn = Button(self.test_frame,
@@ -609,6 +616,8 @@ class wm_seg:
         self.param_mask_tag.set(default_config.get('database','roi_tags'))
         self.param_register_modalities.set(default_config.get('database', 'register_modalities'))
         self.param_bias_correction.set(default_config.get('database', 'bias_correction'))
+        self.param_batch_prediction.set(default_config.get('database', 'batch_prediction'))
+        # self.param_batch_prediction
         # self.param_register_modalities_Kind.set(default_config.get('database', 'register_modalities_Kind'))self
         self.param_denoise.set(default_config.get('database', 'denoise'))
         self.param_denoise_iter.set(default_config.getint('database', 'denoise_iter'))
@@ -676,6 +685,8 @@ class wm_seg:
 
         user_config.set('database', 'register_modalities', str(self.param_register_modalities.get()))
         user_config.set('database', 'bias_correction', str(self.param_bias_correction.get()))
+        user_config.set('database', 'batch_prediction', str(self.param_batch_prediction.get()))
+        # self.param_batch_prediction.set(default_config.get('database', 'batch_prediction'))
         # user_config.set('database', 'register_modalities_Kind', str(self.param_register_modalities_Kind.get()))
         user_config.set('database', 'reg_space', str(self.param_reg_space.get()))
         user_config.set('database', 'denoise', str(self.param_denoise.get()))
