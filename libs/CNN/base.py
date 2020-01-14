@@ -579,7 +579,7 @@ def load_test_patches(options, test_x_data,
     # x_ = np.empty((9200, 400, 400, 3)
     # Xs = np.zeros_like (X)
         Xs = np.stack(X, axis=1)
-        return Xs, selected_voxels
+    return Xs, selected_voxels
 
 
 
