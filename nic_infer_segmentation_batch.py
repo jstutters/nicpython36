@@ -67,9 +67,6 @@ user_config.read(args.configuration_path)
 # read user's configuration file
 options = load_options(default_config, user_config)
 
-if options['debug']:
-    print_options(options)
-
 # tensorflow backend
 device = str(options['gpu_number'])
 print("DEBUG: ", device)
@@ -210,8 +207,8 @@ options['task'] = 'inference'
 # for check in scan_list:
     # check_oututs(check, options)
 
-
-
+if options['debug']:
+    print_options(options)
 
 # list scans
 scan_list = os.listdir(options['test_folder'])
