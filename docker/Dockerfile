@@ -214,9 +214,7 @@ RUN conda install -y python=${python_version} && \
       click \
       torch \
       mxnet \
-      tensorflow \
-      horovod \
-      cntk && \
+      tensorflow && \
     conda install \
       bcolz \
       h5py \

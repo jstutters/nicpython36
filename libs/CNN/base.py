@@ -509,9 +509,68 @@ def load_train_patches(x_data,
     Y = np.concatenate(Y, axis=0)
 
     return X, Y
-
-
 def load_test_patches(test_x_data,
+                      patch_size,
+                      batch_size,
+                      voxel_candidates = None,
+                      datatype=np.float32):
+    """
+    Function generator to load test patches with size equal to patch_size,
+    given a list of selected voxels. Patches are returned in batches to reduce
+    the amount of RAM used
+    Inputs:
+       - x_data: list containing all subject image paths for a single modality
+       - selected_voxels: list where each element contains the subject binary
+         mask for selected voxels [len(x), len(y), len(z)]
+       - tuple containing patch size, either 2D (p1, p2, 1) or 3D (p1, p2, p3)
+       - Voxel candidates: a binary mask containing voxels for testing
+    Outputs (in batches):
+       - X: Train X data matrix for the each channel [num_samples, p1, p2, p3]
+       - voxel_coord: list of tuples with voxel coordinates (x,y,z) of
+         selected patches
+    """
+
+    # get scan names and number of modalities used
+    scans = list(test_x_data.keys())
+    modalities = list(test_x_data[scans[0]].keys())
+
+    # load all image modalities and normalize intensities
+    images = []
+
+    for m in modalities:
+        raw_images = [load_nii(test_x_data[s][m]).get_data() for s in scans]
+        images.append([normalize_data(im) for im in raw_images])
+
+    # select voxels for testing. Discard CSF and darker WM in FLAIR.
+    # If voxel_candidates is not selected, using intensity > 0.5 in FLAIR,
+    # else use the binary mask to extract candidate voxels
+    if voxel_candidates is None:
+        flair_scans = [test_x_data[s]['FLAIR'] for s in scans]
+        selected_voxels = [get_mask_voxels(mask)
+                           for mask in select_training_voxels(flair_scans,
+                                                              0.5)][0]
+    else:
+        selected_voxels = get_mask_voxels(voxel_candidates)
+
+    # yield data for testing with size equal to batch_size
+    # for i in range(0, len(selected_voxels), batch_size):
+    #     c_centers = selected_voxels[i:i+batch_size]
+    #     X = []
+    #     for m, image_modality in zip(modalities, images):
+    #         X.append(get_patches(image_modality[0], c_centers, patch_size))
+    #     yield np.stack(X, axis=1), c_centers
+    
+    X = []
+
+    for image_modality in images:
+           X.append(get_patches(image_modality[0], selected_voxels, patch_size))
+    # x_ = np.empty((9200, 400, 400, 3)
+    # Xs = np.zeros_like (X)
+    Xs = np.stack(X, axis=1)
+    return Xs, selected_voxels
+    
+
+def load_test_patches_batch(test_x_data,
                       patch_size,
                       batch_size,
                       batch_prediction=False,
@@ -564,25 +623,13 @@ def load_test_patches(test_x_data,
     #     for m, image_modality in zip(modalities, images):
     #         X.append(get_patches(image_modality[0], c_centers, patch_size))
     #     yield np.stack(X, axis=1), c_centers
-    if batch_prediction:
-        for i in range(0, len(selected_voxels), batch_size):
+    for i in range(0, len(selected_voxels), batch_size):
             c_centers = selected_voxels[i:i + batch_size]
             X = []
             for m, image_modality in zip(modalities, images):
                 X.append(get_patches(image_modality[0], c_centers, patch_size))
             yield np.stack(X, axis=1), c_centers
   
-    else:
-        X = []
-
-        for image_modality in images:
-            X.append(get_patches(image_modality[0], selected_voxels, patch_size))
-    # x_ = np.empty((9200, 400, 400, 3)
-    # Xs = np.zeros_like (X)
-        Xs = np.stack(X, axis=1)
-        return Xs, selected_voxels
-
-
 
 def sc_one_zero(array):
     for x in array.flat:
@@ -681,7 +728,7 @@ def test_scan(model,
     # options['batch_prediction']
     # compute lesion segmentation in batches of size options['batch_size']
     if options['batch_prediction']:
-        for batch, centers in load_test_patches(test_x_data,
+        for batch, centers in load_test_patches_batch(test_x_data, 
                                             options['patch_size'],
                                             options['batch_size'],
                                             batch_prediction=options['batch_prediction'],
@@ -707,7 +754,7 @@ def test_scan(model,
     #  ////////////////
     else: 
         batch, centers = load_test_patches(test_x_data,
-                                       options['patch_size'],
+                                       options['patch_size'], 
                                        options['batch_size'],
                                        batch_prediction=options['batch_prediction'],
                                        voxel_candidates=candidate_mask)
