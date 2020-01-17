@@ -19,8 +19,8 @@ python  preprocess_inference_script.py
 # After running the above, a singularity image using docker hub (docker://kbronik/ms_cnn_ucl:latest) will be generated:
 
 #  - path to singularity//..///ms_cnn_ucl_latest.sif  
-#  singularity exec  ms_cnn_ucl-latest.simg  python path to nicpython36/inference_scripts.py
-singularity exec  ms_cnn_ucl-latest.simg  python /home/kbronik/Desktop/jon_stut/trythis/nicpython36-master/inference_script.py
+#  singularity exec  ms_cnn_ucl_latest.sif  python path to nicpython36/inference_scripts.py
+singularity exec  ms_cnn_ucl_latest.sif  python /home/kbronik/Desktop/jon_stut/trythis/nicpython36-master/inference_script.py
 
 
 echo "All calculation completed"
