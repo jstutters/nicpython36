@@ -178,7 +178,7 @@ def get_config():
     options = load_options(default_config, user_config)
     options['tmp_folder'] = CURRENT_PATH + '/tmp'
     options['standard_lib'] = CURRENT_PATH + '/libs/standard'
-    options['weight_paths'] = args.weight_paths
+    options['weight_paths'] = args.weights_path
     # set paths taking into account the host OS
     host_os = platform.system()
     if host_os == 'Linux' or 'Darwin':
