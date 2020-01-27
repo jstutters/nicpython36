@@ -366,7 +366,7 @@ def infer_segmentation(options):
         # --------------------------------------------------
 
         current_folder = os.path.join(options['test_folder'], scan)
-        options['tmp_folder'] = tmpfile.mkdtemp(prefix='nicms_')
+        options['tmp_folder'] = tempfile.mkdtemp(prefix='nicms_')
 
         # --------------------------------------------------
         # preprocess scans
