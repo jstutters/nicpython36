@@ -17,6 +17,7 @@ import shutil
 import argparse
 import os
 import sys
+import tempfile
 import platform
 from timeit import time
 import configparser
@@ -24,13 +25,19 @@ import numpy as np
 from utils.preprocess import preprocess_scan
 from  utils.postprocess import invert_registration
 from utils.load_options import load_options, print_options
-CURRENT_PATH = CURRENT_PATH = os.path.split(os.path.realpath(__file__))[0]
+CURRENT_PATH = os.path.split(os.path.realpath(__file__))[0]
 sys.path.append(os.path.join(CURRENT_PATH, 'libs'))
 # load options from input
 parser = argparse.ArgumentParser()
 parser.add_argument('--docker',
                     dest='docker',
                     action='store_true')
+parser.add_argument('--configuration',
+                    default=os.path.join(CURRENT_PATH, 'config', 'configuration.cfg'),
+                    dest='configuration_path')
+parser.add_argument('--weights',
+                    default=os.path.join(CURRENT_PATH, 'nets'),
+                    dest='weights_path')
 parser.set_defaults(docker=False)
 args = parser.parse_args()
 container = args.docker
@@ -86,7 +93,7 @@ def check_inputs(current_folder, options, choice):
 
 
     """
-    erf =os.path.join(CURRENT_PATH, 'InputIssueReportfile.txt')
+    erf = "/tmp/OutputIssueReportfile.txt"
     f = open(erf, "a")
 
     if os.path.isdir(os.path.join(options['train_folder'], current_folder)):
@@ -166,12 +173,13 @@ def get_config():
     default_config = configparser.SafeConfigParser()
     default_config.read(os.path.join(CURRENT_PATH, 'config', 'default.cfg'))
     user_config = configparser.RawConfigParser()
-    user_config.read(os.path.join(CURRENT_PATH, 'config', 'configuration.cfg'))
+    user_config.read(args.configuration_path)
 
     # read user's configuration file
     options = load_options(default_config, user_config)
-    options['tmp_folder'] = CURRENT_PATH + '/tmp'
+    options['tmp_folder'] = tempfile.mkdtemp(prefix='nicms_')
     options['standard_lib'] = CURRENT_PATH + '/libs/standard'
+    options['weight_paths'] = args.weights_path
     # set paths taking into account the host OS
     host_os = platform.system()
     if host_os == 'Linux' or 'Darwin':
@@ -325,7 +333,7 @@ def pre_segmentation(options):
     # --------------------------------------------------
     options['full_train'] = True
     options['load_weights'] = True
-    options['weight_paths'] = os.path.join(CURRENT_PATH, 'nets')
+    options['weight_paths'] = args.weights_path
     options['net_verbose'] = 0
     model = cascade_model(options)
 
@@ -359,13 +367,17 @@ def pre_segmentation(options):
         # --------------------------------------------------
 
         current_folder = os.path.join(options['test_folder'], scan)
-        options['tmp_folder'] = os.path.normpath(
-            os.path.join(current_folder,  'tmp'))
+        options['tmp_folder'] = tempfile.mkdtemp(prefix='nicms_')
 
         # --------------------------------------------------
         # preprocess scans
         # --------------------------------------------------
         preprocess_scan(current_folder, options)
+
+        # --------------------------------------------------
+        # clean up
+        # --------------------------------------------------
+        shutil.rmtree(options['tmp_folder'])
 
 
 if __name__ == '__main__':
