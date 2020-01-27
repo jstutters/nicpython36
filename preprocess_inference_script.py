@@ -17,7 +17,6 @@ import shutil
 import argparse
 import os
 import sys
-import tempfile
 import platform
 from timeit import time
 import configparser
@@ -38,6 +37,7 @@ parser.add_argument('--configuration',
 parser.add_argument('--weights',
                     default=os.path.join(CURRENT_PATH, 'nets'),
                     dest='weights_path')
+parser.add_argument('--workdir')
 parser.set_defaults(docker=False)
 args = parser.parse_args()
 container = args.docker
@@ -177,7 +177,7 @@ def get_config():
 
     # read user's configuration file
     options = load_options(default_config, user_config)
-    options['tmp_folder'] = tempfile.mkdtemp(prefix='nicms_')
+    options['tmp_folder'] = args.workdir
     options['standard_lib'] = CURRENT_PATH + '/libs/standard'
     options['weight_paths'] = args.weights_path
     # set paths taking into account the host OS
@@ -367,17 +367,12 @@ def pre_segmentation(options):
         # --------------------------------------------------
 
         current_folder = os.path.join(options['test_folder'], scan)
-        options['tmp_folder'] = tempfile.mkdtemp(prefix='nicms_')
+        options['tmp_folder'] = args.workdir
 
         # --------------------------------------------------
         # preprocess scans
         # --------------------------------------------------
         preprocess_scan(current_folder, options)
-
-        # --------------------------------------------------
-        # clean up
-        # --------------------------------------------------
-        shutil.rmtree(options['tmp_folder'])
 
 
 if __name__ == '__main__':
