@@ -590,8 +590,8 @@ def skull_strip(options):
                 mask = nib.load(current_mask)
                 mask_nii = mask.get_data()
                 mask_nii[brainmask == 0] = 0
-                mask.get_data()[:] = mask_nii
-                mask.to_filename(current_st_mask)
+                out = nib.Nifti1Image(mask_nii, mask.affine, mask.header)
+                out.to_filename(current_st_mask)
 
 
 
