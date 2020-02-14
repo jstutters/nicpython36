@@ -170,7 +170,7 @@ def get_config():
     """
     Get the CNN configuration from file
     """
-    default_config = configparser.SafeConfigParser()
+    default_config = configparser.ConfigParser()
     default_config.read(os.path.join(CURRENT_PATH, 'config', 'default.cfg'))
     user_config = configparser.RawConfigParser()
     user_config.read(args.configuration_path)
