@@ -7,7 +7,6 @@ from keras import regularizers
 from keras.models import Model
 # K.set_image_dim_ordering('th')
 K.set_image_data_format('channels_first')
-
 def get_network(options):
     """
     CNN model for MS lesion segmentation. Based on the model proposed on:

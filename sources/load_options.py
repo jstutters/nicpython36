@@ -30,18 +30,18 @@ def load_options(default_config, user_config):
     options['current_scan'] = 'scan'
     # options['t1_name'] = default_config.get('database', 't1_name')
     # options['flair_name'] = default_config.get('database', 'flair_name')
-    options['flair_tags'] = [el.strip() for el in
+    options['FLAIR_tags'] = [el.strip() for el in
                              default_config.get('database',
-                                                'flair_tags').split(',')]
-    options['t1_tags'] = [el.strip() for el in
-                          default_config.get('database',
-                                             't1_tags').split(',')]
-    options['mod3_tags'] = [el.strip() for el in
-                            default_config.get('database',
-                                               'mod3_tags').split(',')]
-    options['mod4_tags'] = [el.strip() for el in
-                            default_config.get('database',
-                                               'mod4_tags').split(',')]
+                                                'Flair_tags').split(',')]
+    # options['t1_tags'] = [el.strip() for el in
+    #                       default_config.get('database',
+    #                                          't1_tags').split(',')]
+    # options['mod3_tags'] = [el.strip() for el in
+    #                         default_config.get('database',
+    #                                            'mod3_tags').split(',')]
+    # options['mod4_tags'] = [el.strip() for el in
+    #                         default_config.get('database',
+    #                                            'mod4_tags').split(',')]
     options['roi_tags'] = [el.strip() for el in
                            default_config.get('database',
                                               'roi_tags').split(',')]
@@ -51,16 +51,19 @@ def load_options(default_config, user_config):
     # options['ROI_name'] = default_config.get('database', 'ROI_name')
     options['debug'] = default_config.get('database', 'debug')
 
-    modalities = [str(options['flair_tags'][0]),
-                  options['t1_tags'][0],
-                  options['mod3_tags'][0],
-                  options['mod4_tags'][0]]
-    names = ['FLAIR', 'T1', 'MOD3', 'MOD4']
+    # modalities = [str(options['flair_tags'][0]),
+    #               options['t1_tags'][0],
+    #               options['mod3_tags'][0],
+    #               options['mod4_tags'][0]]
+    # names = ['FLAIR', 'T1', 'MOD3', 'MOD4']
+
+    modalities = [str(options['FLAIR_tags'][0])]
+    names = ['FLAIR']
 
     options['modalities'] = [n for n, m in
                              zip(names, modalities) if m != 'None']
     options['image_tags'] = [m for m in modalities if m != 'None']
-    options['x_names'] = [n + '_brain.nii.gz' for n, m in
+    options['x_names'] = [n + '_tmp.nii.gz' for n, m in
                           zip(names, modalities) if m != 'None']
 
     options['out_name'] = 'out_seg.nii.gz'
@@ -73,29 +76,26 @@ def load_options(default_config, user_config):
     #                                                      'register_modalities_Kind'))
 
     options['reg_space'] = (default_config.get('database',
-                                                         'reg_space'))                                                     
-
+                                               'reg_space'))
 
     options['denoise'] = (default_config.get('database',
                                              'denoise'))
     options['denoise_iter'] = (default_config.getint('database',
                                                      'denoise_iter'))
     options['bias_iter'] = (default_config.getint('database',
-                                                     'bias_iter'))
+                                                  'bias_iter'))
     options['bias_smooth'] = (default_config.getint('database',
-                                                     'bias_smooth')) 
+                                                    'bias_smooth'))
     options['bias_type'] = (default_config.getint('database',
-                                                     'bias_type'))                                                   
+                                                  'bias_type'))
     options['bias_choice'] = (default_config.get('database',
-                                                     'bias_choice'))
-
-
+                                                 'bias_choice'))
 
     options['bias_correction'] = (default_config.get('database',
                                                      'bias_correction'))
 
     options['batch_prediction'] = (default_config.get('database',
-                                                     'batch_prediction'))                                                 
+                                                      'batch_prediction'))
 
     options['skull_stripping'] = (default_config.get('database',
                                                      'skull_stripping'))
@@ -105,7 +105,7 @@ def load_options(default_config, user_config):
     # options['gpu_mode'] = default_config.get('model', 'gpu_mode')
     options['gpu_number'] = default_config.getint('model', 'gpu_number')
     options['pretrained'] = default_config.get('model', 'pretrained')
-    options['min_th'] = 0.5
+    options['min_th'] = -0.5
     options['fully_convolutional'] = False
     options['patch_size'] = (11, 11, 11)
     options['weight_paths'] = None
@@ -117,8 +117,6 @@ def load_options(default_config, user_config):
 
     options['tensorboard'] = default_config.get('database', 'tensorboard_folder')
     options['port'] = default_config.getint('tensorboard', 'port')
-    
-
 
     # options['load_weights'] = default_config.get('model', 'load_weights')
     options['load_weights'] = True

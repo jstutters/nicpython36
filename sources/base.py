@@ -5,7 +5,7 @@ import numpy as np
 from nibabel import load as load_nii
 import nibabel as nib
 from operator import itemgetter
-from .build_model import define_training_layers, fit_model, fit_thismodel
+from sources.build_model import define_training_layers, fit_model, fit_thismodel
 from operator import add
 from keras.models import load_model
 import tensorflow as tf
@@ -34,10 +34,6 @@ def train_cascaded_model(model, train_x_data, train_y_data, options, thispath):
     # ----------
     # CNN1
     # ----------
-    CSELECTED = '\33[7m'
-    CRED2    = '\33[91m'
-    CEND      = '\33[0m'
-    CBLINK2   = '\33[6m'
     default_config = configparser.ConfigParser()
     default_config.read(os.path.join(thispath, 'config', 'default.cfg'))
     user_config = configparser.ConfigParser()
@@ -46,7 +42,7 @@ def train_cascaded_model(model, train_x_data, train_y_data, options, thispath):
     # MODEL2_user = user_config.get('completed', 'model_2_train')
 
 
-    print(CSELECTED + "CNN: loading training data for first model" +  CEND)
+    print("> CNN: loading training data for first model")
     #modeltest = fit_thismodel(model[0], X, Y, options)
     X, Y, sel_voxels = load_training_data(train_x_data, train_y_data, options)
     print('> CNN: train_x ', X.shape)
@@ -139,7 +135,7 @@ def train_cascaded_model(model, train_x_data, train_y_data, options, thispath):
     # CNN2
     # ----------
 
-    print(CSELECTED +"CNN: loading training data for the second model"+ CEND)
+    print('> CNN: loading training data for the second model')
     if options['model_2_train'] is False:
       X, Y, sel_voxels = load_training_data(train_x_data,
                                           train_y_data,
@@ -238,7 +234,7 @@ def test_cascaded_model(model, test_x_data, options):
 
     # first network
     firstnetwork_time = time.time()
-    options['test_name'] = options['experiment'] + '_debug_prob_0.nii.gz'
+    options['test_name'] = options['experiment'] + '_probability_map_first_model.nii.gz'
 
     # only save the first iteration result if debug is True
     save_nifti = True if options['debug'] is True else False
@@ -251,7 +247,7 @@ def test_cascaded_model(model, test_x_data, options):
 
     # second network
     secondnetwork_time = time.time()
-    options['test_name'] = options['experiment'] + '_prob_1.nii.gz'
+    options['test_name'] = options['experiment'] + '_probability_map_second_model.nii.gz'
     t2 = test_scan(model[1],
                   test_x_data,
                   options,
@@ -263,7 +259,7 @@ def test_cascaded_model(model, test_x_data, options):
     scans = list(test_x_data.keys())
     flair_scans = [test_x_data[s]['FLAIR'] for s in scans]
     flair_image = load_nii(flair_scans[0])
-    options['test_name'] = options['experiment'] + '_hard_seg.nii.gz'
+    options['test_name'] = options['experiment'] + '_CNN_final_segmentation.nii.gz'
     out_segmentation = post_process_segmentation(t2,
                                                  options,
                                                  save_nifti=True,
@@ -398,8 +394,25 @@ def select_training_voxels(input_masks, threshold=2, datatype=np.float32):
     # load images and normalize their intensities
     images = [load_nii(image_name).get_data() for image_name in input_masks]
     images_norm = [normalize_data(im) for im in images]
+
+    ###########
+    #
+    # output_sequence = nib.Nifti1Image(images_norm, affine=images.affine)
+    # output_sequence.to_filename('images_norm.nii.gz')
+
+
+
+    ###########
+
+
+
+
     # select voxels with intensity higher than threshold
-    rois = [image > threshold for image in images_norm]
+    # rois = [image > threshold for image in images_norm]
+    rois = [image > -0.5 for image in images_norm]
+    # output_sequence_e = nib.Nifti1Image(rois)
+    # output_sequence_e.to_filename('roi_images_norm.nii.gz',  affine=images.affine)
+
     return rois
 
 
@@ -509,6 +522,8 @@ def load_train_patches(x_data,
     Y = np.concatenate(Y, axis=0)
 
     return X, Y
+
+
 def load_test_patches(test_x_data,
                       patch_size,
                       batch_size,
@@ -518,12 +533,14 @@ def load_test_patches(test_x_data,
     Function generator to load test patches with size equal to patch_size,
     given a list of selected voxels. Patches are returned in batches to reduce
     the amount of RAM used
+
     Inputs:
        - x_data: list containing all subject image paths for a single modality
        - selected_voxels: list where each element contains the subject binary
          mask for selected voxels [len(x), len(y), len(z)]
        - tuple containing patch size, either 2D (p1, p2, 1) or 3D (p1, p2, p3)
        - Voxel candidates: a binary mask containing voxels for testing
+
     Outputs (in batches):
        - X: Train X data matrix for the each channel [num_samples, p1, p2, p3]
        - voxel_coord: list of tuples with voxel coordinates (x,y,z) of
@@ -559,77 +576,15 @@ def load_test_patches(test_x_data,
     #     for m, image_modality in zip(modalities, images):
     #         X.append(get_patches(image_modality[0], c_centers, patch_size))
     #     yield np.stack(X, axis=1), c_centers
-    
+
     X = []
 
     for image_modality in images:
-           X.append(get_patches(image_modality[0], selected_voxels, patch_size))
+        X.append(get_patches(image_modality[0], selected_voxels, patch_size))
     # x_ = np.empty((9200, 400, 400, 3)
     # Xs = np.zeros_like (X)
     Xs = np.stack(X, axis=1)
     return Xs, selected_voxels
-    
-
-def load_test_patches_batch(test_x_data,
-                      patch_size,
-                      batch_size,
-                      batch_prediction=False,
-                      voxel_candidates=None,
-                      datatype=np.float32):
-    """
-    Function generator to load test patches with size equal to patch_size,
-    given a list of selected voxels. Patches are returned in batches to reduce
-    the amount of RAM used
-
-    Inputs:
-       - x_data: list containing all subject image paths for a single modality
-       - selected_voxels: list where each element contains the subject binary
-         mask for selected voxels [len(x), len(y), len(z)]
-       - tuple containing patch size, either 2D (p1, p2, 1) or 3D (p1, p2, p3)
-       - Voxel candidates: a binary mask containing voxels for testing
-
-    Outputs (in batches):
-       - X: Train X data matrix for the each channel [num_samples, p1, p2, p3]
-       - voxel_coord: list of tuples with voxel coordinates (x,y,z) of
-         selected patches
-    """
-
-    # get scan names and number of modalities used
-    scans = list(test_x_data.keys())
-    modalities = list(test_x_data[scans[0]].keys())
-
-    # load all image modalities and normalize intensities
-    images = []
-
-    for m in modalities:
-        raw_images = [load_nii(test_x_data[s][m]).get_data() for s in scans]
-        images.append([normalize_data(im) for im in raw_images])
-
-    # select voxels for testing. Discard CSF and darker WM in FLAIR.
-    # If voxel_candidates is not selected, using intensity > 0.5 in FLAIR,
-    # else use the binary mask to extract candidate voxels
-    if voxel_candidates is None:
-        flair_scans = [test_x_data[s]['FLAIR'] for s in scans]
-        selected_voxels = [get_mask_voxels(mask)
-                           for mask in select_training_voxels(flair_scans,
-                                                              0.5)][0]
-    else:
-        selected_voxels = get_mask_voxels(voxel_candidates)
-
-    # yield data for testing with size equal to batch_size
-    # for i in range(0, len(selected_voxels), batch_size):
-    #     c_centers = selected_voxels[i:i+batch_size]
-    #     X = []
-    #     for m, image_modality in zip(modalities, images):
-    #         X.append(get_patches(image_modality[0], c_centers, patch_size))
-    #     yield np.stack(X, axis=1), c_centers
-    for i in range(0, len(selected_voxels), batch_size):
-            c_centers = selected_voxels[i:i + batch_size]
-            X = []
-            for m, image_modality in zip(modalities, images):
-                X.append(get_patches(image_modality[0], c_centers, patch_size))
-            yield np.stack(X, axis=1), c_centers
-  
 
 def sc_one_zero(array):
     for x in array.flat:
@@ -657,10 +612,10 @@ def get_mask_voxels(mask):
 
 
 
-    # # if sc_one_zero(mask[np.nonzero(mask)]):
-     # #   print("lesion mask is not real binary, please check the inputs and try again!")
-     # #   time.sleep(1)
-     # #   os.kill(os.getpid(), signal.SIGTERM)
+    if sc_one_zero(mask[np.nonzero(mask)]):
+        print("lesion mask is not real binary, please check the inputs and try again!")
+        time.sleep(1)
+        os.kill(os.getpid(), signal.SIGTERM)
     indices = np.stack(np.nonzero(mask), axis=1)
     indices = [tuple(idx) for idx in indices]
     return indices
@@ -725,55 +680,30 @@ def test_scan(model,
 
     if options['debug'] is True:
             print("> DEBUG ", scans[0], "Voxels to classify:", all_voxels)
-    # options['batch_prediction']
+
     # compute lesion segmentation in batches of size options['batch_size']
-    if options['batch_prediction']:
-        for batch, centers in load_test_patches_batch(test_x_data, 
-                                            options['patch_size'],
-                                            options['batch_size'],
-                                            batch_prediction=options['batch_prediction'],
-                                            voxel_candidates=candidate_mask):
-            if options['debug'] is True:
-               print("> DEBUG: testing current_batch:", batch.shape, end=' ')
-            print (" \n")
-            print("Prediction or loading learned model started........................> \n")
-
-            prediction_time = time.time()
-            y_pred = model['net'].predict(np.squeeze(batch),
-                                      options['batch_size'])
-            print("Prediction or loading learned model: ", round(time.time() - prediction_time), "sec")
-
-
-            [x, y, z] = np.stack(centers, axis=1)
-            seg_image[x, y, z] = y_pred[:, 1]
-        if options['debug'] is True:
-              print("...done!")
-
-
-
-    #  ////////////////
-    else: 
-        batch, centers = load_test_patches(test_x_data,
-                                       options['patch_size'], 
+    batch, centers = load_test_patches(test_x_data,
+                                       options['patch_size'],
                                        options['batch_size'],
-                                       batch_prediction=options['batch_prediction'],
-                                       voxel_candidates=candidate_mask)
-        if options['debug'] is True:
-            print("> DEBUG: testing current_batch:", batch.shape, end=' ')
-        print (" \n")
-        print("Prediction or loading learned model started........................> \n")
+                                       candidate_mask)
+    if options['debug'] is True:
+        print("> DEBUG: testing current_batch:", batch.shape, end=' ')
+    print (" \n")
+    print("Prediction or loading learned model started........................> \n")
 
-        prediction_time = time.time()
-        y_pred = model['net'].predict(np.squeeze(batch),
+    prediction_time = time.time()
+    # y_pred = model['net'].predict(np.squeeze(batch),
+    #                               options['batch_size'])
+    y_pred = model['net'].predict(batch,
                                   options['batch_size'])
-        print("Prediction or loading learned model: ", round(time.time() - prediction_time), "sec")
+    print("Prediction or loading learned model: ", round(time.time() - prediction_time), "sec")
 
 
-        [x, y, z] = np.stack(centers, axis=1)
-        seg_image[x, y, z] = y_pred[:, 1]
-        if options['debug'] is True:
-              print("...done!")
-    #  ////////////////
+    [x, y, z] = np.stack(centers, axis=1)
+    seg_image[x, y, z] = y_pred[:, 1]
+    if options['debug'] is True:
+            print("...done!")
+
     # check if the computed volume is lower than the minimum accuracy given
     # by the min_error parameter
     if check_min_error(seg_image, options, flair_image.header.get_zooms()):

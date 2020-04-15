@@ -8,7 +8,7 @@ import platform
 import nibabel as nib
 import numpy as np
 from medpy.filter.smoothing import anisotropic_diffusion as ans_dif
-
+from nibabel import load as load_nii
 
 CEND      = '\33[0m'
 CBOLD     = '\33[1m'
@@ -204,6 +204,7 @@ def register_masks(options):
                 os.kill(os.getpid(), signal.SIGTERM)
             print('running ....> ', reg_resample_path)
 
+
             try:
                 print("> PRE:", scan, "resampling the lesion mask --> T1 space")
                 subprocess.check_output([reg_resample_path, '-ref',
@@ -278,12 +279,13 @@ def register_masks(options):
 
     if  options['reg_space'] != 'FlairtoT1' and  options['reg_space'] != 'T1toFlair':
         print("registration to standard space:", options['reg_space'])
+        print('using ....> ', options['standard_lib'])
         for mod in options['modalities']:
 
             try:
                 print("> PRE:", scan, "registering", mod, "--->",  options['reg_space'])
 
-                subprocess.check_output([reg_aladin_path, '-ref',
+                subprocess.check_output(['reg_aladin', '-ref',
                                          os.path.join(options['standard_lib'], options['reg_space']),
                                          '-flo', os.path.join(options['tmp_folder'], mod + '.nii.gz'),
                                          '-aff', os.path.join(options['tmp_folder'], mod + '_transf.txt'),
@@ -323,7 +325,7 @@ def register_masks(options):
 
         try:
             print("> PRE:", scan, "resampling the lesion mask -->",options['reg_space'] )
-            subprocess.check_output([reg_resample_path, '-ref',
+            subprocess.check_output(['reg_resample', '-ref',
                                          os.path.join(options['standard_lib'], options['reg_space']),
                                          '-flo', os.path.join(options['tmp_folder'], 'lesion'),
                                          '-trans', os.path.join(options['tmp_folder'], 'FLAIR_transf.txt'),
@@ -475,7 +477,7 @@ def bias_correction(options):
                                              
             except:
                 
-                print("err: '{}'".format(output))
+                # print("err: '{}'".format(output))
                 print("> ERROR:", scan, "Bias correction of  ", mod,  "quiting program.")
                 time.sleep(1)
                 os.kill(os.getpid(), signal.SIGTERM)
@@ -507,7 +509,7 @@ def denoise_masks(options):
             current_image = mod + '.nii.gz' if mod == 'T1' \
                 else 'r' + mod + '.nii.gz'
         if  options['reg_space'] != 'FlairtoT1' and  options['reg_space'] != 'T1toFlair':
-            current_image =  'r' + mod + '.nii.gz'
+            current_image ='r' + mod + '.nii.gz'
 
         tmp_scan = nib.load(os.path.join(options['tmp_folder'],
                                          current_image))
@@ -537,26 +539,36 @@ def skull_strip(options):
     #     time.sleep(1)
     #     os.kill(os.getpid(), signal.SIGTERM)
 
-
-    os_host = platform.system()
-
+    os_host=platform.system()
     scan = options['tmp_scan']
     if options['reg_space'] == 'FlairtoT1':
 
-            t1_im = os.path.join(options['tmp_folder'], 'dT1.nii.gz')
-            t1_st_im = os.path.join(options['tmp_folder'], 'T1_brain.nii.gz')
+            # t1_im = os.path.join(options['tmp_folder'], 'dT1.nii.gz')
+            # t1_st_im = os.path.join(options['tmp_folder'], 'T1_tmp.nii.gz')
+            t1_im = os.path.join(options['tmp_folder'], 'drFLAIR.nii.gz')
+            t1_st_im = os.path.join(options['tmp_folder'], 'FLAIR_tmp.nii.gz')
 
             try:
-                print("> PRE:", scan, "skull_stripping the T1 modality")
+                print("> PRE:", scan, "skull_stripping the Flair modality")
                 if os_host == 'Windows':
+                    print("skull_stripping the Flair modality on",os_host, "system")
                     subprocess.check_output([options['robex_path'],
                                              t1_im,
                                              t1_st_im])
                 elif os_host == 'Linux':
-                    subprocess.check_output([options['robex_path'],
-                                             t1_im,
-                                             t1_st_im])
+                    print("skull_stripping the Flair modality on ",os_host, "system")
+                    out = subprocess.check_output(["bash", options['robex_path'],
+                                              t1_im,
+                                              t1_st_im])
+                    # print(options['robex_path'])
+                    # p = subprocess.Popen([options['robex_path'],
+                    #                          t1_im,
+                    #                          t1_st_im], stdout=subprocess.PIPE)
+
+                    # print(p.communicate())
+
                 elif os_host == 'Darwin':
+                    print("skull_stripping the Flair modality on",os_host, "system")
                     bet = 'bet'
                     subprocess.check_output([bet,
                                              t1_im,
@@ -575,7 +587,7 @@ def skull_strip(options):
             brainmask = nib.load(t1_st_im).get_data() > 1
             for mod in options['modalities']:
 
-                if mod == 'T1':
+                if mod == 'FLAIR':
                     continue
 
                 # apply the same mask to the rest of modalities to reduce
@@ -585,118 +597,172 @@ def skull_strip(options):
                 current_mask = os.path.join(options['tmp_folder'],
                                             'dr' + mod + '.nii.gz')
                 current_st_mask = os.path.join(options['tmp_folder'],
-                                               mod + '_brain.nii.gz')
+                                               mod + '_tmp.nii.gz')
 
                 mask = nib.load(current_mask)
                 mask_nii = mask.get_data()
                 mask_nii[brainmask == 0] = 0
-                out = nib.Nifti1Image(mask_nii, mask.affine, mask.header)
-                out.to_filename(current_st_mask)
+                mask.get_data()[:] = mask_nii
+                mask.to_filename(current_st_mask)
 
 
 
     if options['reg_space'] == 'T1toFlair':
 
 
-        t1_im = os.path.join(options['tmp_folder'], 'dFLAIR.nii.gz')
-        t1_st_im = os.path.join(options['tmp_folder'], 'FLAIR_brain.nii.gz')
+            # t1_im = os.path.join(options['tmp_folder'], 'dT1.nii.gz')
+            # t1_st_im = os.path.join(options['tmp_folder'], 'T1_tmp.nii.gz')
+            t1_im = os.path.join(options['tmp_folder'], 'drFLAIR.nii.gz')
+            t1_st_im = os.path.join(options['tmp_folder'], 'FLAIR_tmp.nii.gz')
 
-        try:
-            print("> PRE:", scan, "skull_stripping the FLAIR modality")
-            if os_host == 'Windows':
-              subprocess.check_output([options['robex_path'],
-                                     t1_im,
-                                     t1_st_im])
-            elif os_host == 'Linux':
-              subprocess.check_output([options['robex_path'],
-                                     t1_im,
-                                     t1_st_im])
-            elif os_host == 'Darwin':
-              bet = 'bet'
-              subprocess.check_output([bet,
-                                     t1_im,
-                                     t1_st_im, '-R', '-S', '-B'])
-            else:
-              print('Please install first  FSL in your mac system and try again!')
-              sys.stdout.flush()
-              time.sleep(1)
-              os.kill(os.getpid(), signal.SIGTERM)
+            try:
+                print("> PRE:", scan, "skull_stripping the Flair modality")
+                if os_host == 'Windows':
+                    print("skull_stripping the Flair modality on",os_host, "system")
+                    subprocess.check_output([options['robex_path'],
+                                             t1_im,
+                                             t1_st_im])
+                elif os_host == 'Linux':
+                    print("skull_stripping the Flair modality on ",os_host, "system")
+                    out = subprocess.check_output(["bash", options['robex_path'],
+                                              t1_im,
+                                              t1_st_im])
+                    # print(options['robex_path'])
+                    # p = subprocess.Popen([options['robex_path'],
+                    #                          t1_im,
+                    #                          t1_st_im], stdout=subprocess.PIPE)
 
-        except:
-          print("> ERROR:", scan, "registering masks, quiting program.")
-          time.sleep(1)
-          os.kill(os.getpid(), signal.SIGTERM)
+                    # print(p.communicate())
 
-        brainmask = nib.load(t1_st_im).get_data() > 1
-        for mod in options['modalities']:
+                elif os_host == 'Darwin':
+                    print("skull_stripping the Flair modality on",os_host, "system")
+                    bet = 'bet'
+                    subprocess.check_output([bet,
+                                             t1_im,
+                                             t1_st_im, '-R', '-S', '-B'])
+                else:
+                    print('Please install first  FSL in your mac system and try again!')
+                    sys.stdout.flush()
+                    time.sleep(1)
+                    os.kill(os.getpid(), signal.SIGTERM)
 
-           if mod == 'FLAIR':
-              continue
+            except:
+                print("> ERROR:", scan, "registering masks, quiting program.")
+                time.sleep(1)
+                os.kill(os.getpid(), signal.SIGTERM)
 
-        # apply the same mask to the rest of modalities to reduce
-        # computational time
+            brainmask = nib.load(t1_st_im).get_data() > 1
+            for mod in options['modalities']:
 
-           print('> PRE: ', scan, 'Applying skull mask to ', mod, 'image')
-           current_mask = os.path.join(options['tmp_folder'],
-                                    'dr' + mod + '.nii.gz')
-           current_st_mask = os.path.join(options['tmp_folder'],
-                                       mod + '_brain.nii.gz')
+                if mod == 'FLAIR':
+                    continue
 
-           mask = nib.load(current_mask)
-           mask_nii = mask.get_data()
-           mask_nii[brainmask == 0] = 0
-           mask.get_data()[:] = mask_nii
-           mask.to_filename(current_st_mask)
+                # apply the same mask to the rest of modalities to reduce
+                # computational time
+
+                print('> PRE: ', scan, 'Applying skull mask to ', mod, 'image')
+                current_mask = os.path.join(options['tmp_folder'],
+                                            'dr' + mod + '.nii.gz')
+                current_st_mask = os.path.join(options['tmp_folder'],
+                                               mod + '_tmp.nii.gz')
+
+                mask = nib.load(current_mask)
+                mask_nii = mask.get_data()
+                mask_nii[brainmask == 0] = 0
+                mask.get_data()[:] = mask_nii
+                mask.to_filename(current_st_mask)
 
     if  options['reg_space'] != 'FlairtoT1' and  options['reg_space'] != 'T1toFlair':    
 
-        t1_im = os.path.join(options['tmp_folder'], 'drFLAIR.nii.gz')
-        t1_st_im = os.path.join(options['tmp_folder'], 'FLAIR_brain.nii.gz')
+            # t1_im = os.path.join(options['tmp_folder'], 'dT1.nii.gz')
+            # t1_st_im = os.path.join(options['tmp_folder'], 'T1_tmp.nii.gz')
+            t1_im = os.path.join(options['tmp_folder'], 'drFLAIR.nii.gz')
+            t1_st_im = os.path.join(options['tmp_folder'], 'FLAIR_tmp.nii.gz')
 
-        try:
-            print("> PRE:", scan, "skull_stripping the FLAIR modality registered to", options['reg_space'])
-            if os_host == 'Windows':
-              subprocess.check_output([options['robex_path'],
-                                     t1_im,
-                                     t1_st_im])
-            elif os_host == 'Linux':
-              subprocess.check_output([options['robex_path'],
-                                     t1_im,
-                                     t1_st_im])
-            elif os_host == 'Darwin':
-              bet = 'bet'
-              subprocess.check_output([bet,
-                                     t1_im,
-                                     t1_st_im, '-R', '-S', '-B'])
-            else:
-              print('Please install first  FSL in your mac system and try again!')
-              sys.stdout.flush()
-              time.sleep(1)
-              os.kill(os.getpid(), signal.SIGTERM)
+            try:
+                print("> PRE:", scan, "skull_stripping the Flair modality")
+                if os_host == 'Windows':
+                    print("skull_stripping the Flair modality on",os_host, "system")
+                    subprocess.check_output([options['robex_path'],
+                                             t1_im,
+                                             t1_st_im])
+                elif os_host == 'Linux':
+                    print("skull_stripping the Flair modality on ",os_host, "system")
+                    out = subprocess.check_output(["bash", options['robex_path'],
+                                              t1_im,
+                                              t1_st_im])
+                    # print(options['robex_path'])
+                    # p = subprocess.Popen([options['robex_path'],
+                    #                          t1_im,
+                    #                          t1_st_im], stdout=subprocess.PIPE)
 
-        except:
-          print("> ERROR:", scan, "registering masks, quiting program.")
-          time.sleep(1)
-          os.kill(os.getpid(), signal.SIGTERM)
+                    # print(p.communicate())
 
-        brainmask = nib.load(t1_st_im).get_data() > 1
-        for mod in options['modalities']:
+                elif os_host == 'Darwin':
+                    print("skull_stripping the Flair modality on",os_host, "system")
+                    bet = 'bet'
+                    subprocess.check_output([bet,
+                                             t1_im,
+                                             t1_st_im, '-R', '-S', '-B'])
+                else:
+                    print('Please install first  FSL in your mac system and try again!')
+                    sys.stdout.flush()
+                    time.sleep(1)
+                    os.kill(os.getpid(), signal.SIGTERM)
 
-        # apply the same mask to the rest of modalities to reduce
-        # computational time
+            except:
+                print("> ERROR:", scan, "registering masks, quiting program.")
+                time.sleep(1)
+                os.kill(os.getpid(), signal.SIGTERM)
 
-           print('> PRE: ', scan, 'Applying skull mask to ', mod, 'image')
-           current_mask = os.path.join(options['tmp_folder'],
-                                    'dr' + mod + '.nii.gz')
-           current_st_mask = os.path.join(options['tmp_folder'],
-                                       mod + '_brain.nii.gz')
+            brainmask = nib.load(t1_st_im).get_data() > 1
+            for mod in options['modalities']:
 
-           mask = nib.load(current_mask)
-           mask_nii = mask.get_data()
-           mask_nii[brainmask == 0] = 0
-           mask.get_data()[:] = mask_nii
-           mask.to_filename(current_st_mask)        
+                if mod == 'FLAIR':
+                    continue
 
+                # apply the same mask to the rest of modalities to reduce
+                # computational time
+
+                print('> PRE: ', scan, 'Applying skull mask to ', mod, 'image')
+                current_mask = os.path.join(options['tmp_folder'],
+                                            'dr' + mod + '.nii.gz')
+                current_st_mask = os.path.join(options['tmp_folder'],
+                                               mod + '_tmp.nii.gz')
+
+                mask = nib.load(current_mask)
+                mask_nii = mask.get_data()
+                mask_nii[brainmask == 0] = 0
+                mask.get_data()[:] = mask_nii
+                mask.to_filename(current_st_mask)
+
+            image = load_nii(os.path.join(options['tmp_folder'], 'FLAIR_tmp.nii.gz'))
+            image_norm = zscore_normalize(image, mask=None)
+            image_norm.to_filename(os.path.join(options['tmp_folder'], 'normalized_' + '.nii.gz'))
+
+def zscore_normalize(img, mask=None):
+    """
+    normalize a target image by subtracting the mean of the whole brain
+    and dividing by the standard deviation
+    Args:
+        img (nibabel.nifti1.Nifti1Image): target MR brain image
+        mask (nibabel.nifti1.Nifti1Image): brain mask for img
+    Returns:
+        normalized (nibabel.nifti1.Nifti1Image): img with WM mean at norm_value
+    """
+
+    img_data = img.get_data()
+    if mask is not None and not isinstance(mask, str):
+        mask_data = mask.get_data()
+    elif mask == 'nomask':
+        mask_data = img_data == img_data
+    else:
+        mask_data = img_data > img_data.mean()
+    logical_mask = mask_data == 1  # force the mask to be logical type
+    mean = img_data[logical_mask].mean()
+    std = img_data[logical_mask].std()
+    normalized = nib.Nifti1Image((img_data - mean) / std, img.affine, img.header)
+    return normalized
 
 def preprocess_scan(current_folder, options):
     """
@@ -818,6 +884,7 @@ def preprocess_scan(current_folder, options):
         skull_strip(options)
         print("> INFO:", scan, "elapsed time: ", round(time.time() - sk_time), "sec")
         print(CBLUE2 + "External skull stripping completed!" +  CEND)
+
     else:
         try:
             for mod in options['modalities']:
@@ -830,7 +897,7 @@ def preprocess_scan(current_folder, options):
                 shutil.copy(os.path.join(options['tmp_folder'],
                                          input_scan),
                             os.path.join(options['tmp_folder'],
-                                         mod + '_brain.nii.gz'))
+                                         mod + '_tmp.nii.gz'))
         except:
             print("> ERROR: Skull-stripping", scan, "I can not rename input modalities as tmp files. Quiting program.")
             time.sleep(1)

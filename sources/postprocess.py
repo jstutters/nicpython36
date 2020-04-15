@@ -44,30 +44,29 @@ def invert_registration(current_folder, options):
 
 
     # compute the inverse transformation
-    if options['reg_space'] == 'FlairtoT1':
-        try:
-            subprocess.check_output([reg_transform_path, '-invAff',
+    try:
+        subprocess.check_output([reg_transform_path, '-invAff',
                                  os.path.join(options['tmp_folder'],
                                               'FLAIR_transf.txt'),
                                  os.path.join(options['tmp_folder'],
                                               'inv_FLAIR_transf.txt')])
-        except:
-            print("> ERROR: computing the inverse transformation matrix.\
-            Quitting program.")
-            time.sleep(1)
-            os.kill(os.getpid(), signal.SIGTERM)
+    except:
+        print("> ERROR: computing the inverse transformation matrix.\
+        Quitting program.")
+        time.sleep(1)
+        os.kill(os.getpid(), signal.SIGTERM)
 
-        print("> POST: registering output segmentation masks back to FLAIR")
+    print("> POST: registering output segmentation masks back to FLAIR")
 
-        current_experiment = os.path.join(current_folder, options['experiment'])
-        list_scans = os.listdir(current_experiment)
+    current_experiment = os.path.join(current_folder, options['experiment'])
+    list_scans = os.listdir(current_experiment)
 
-        for file in list_scans:
+    for file in list_scans:
 
-          # compute the inverse transformation
-            current_name = file[0:file.find('.')]
-            try:
-                subprocess.check_output([reg_resample_path,
+        # compute the inverse transformation
+        current_name = file[0:file.find('.')]
+        try:
+            subprocess.check_output([reg_resample_path,
                                      '-ref', os.path.join(options['tmp_folder'],
                                                           'FLAIR.nii.gz'),
                                      '-flo', os.path.join(current_experiment,
@@ -77,84 +76,7 @@ def invert_registration(current_folder, options):
                                      '-res', os.path.join(current_experiment,
                                                           current_name + '_FLAIR.nii.gz'),
                                      '-inter', '0'])
-            except:
-                print("> ERROR: resampling ",  current_name, "Quitting program.")
-                time.sleep(1)
-                os.kill(os.getpid(), signal.SIGTERM)
-
-    if options['reg_space'] == 'T1toFlair':
-        try:
-            subprocess.check_output([reg_transform_path, '-invAff',
-                                     os.path.join(options['tmp_folder'],
-                                                  'T1_transf.txt'),
-                                     os.path.join(options['tmp_folder'],
-                                                  'inv_T1_transf.txt')])
         except:
-            print("> ERROR: computing the inverse transformation matrix.\
-             Quitting program.")
+            print("> ERROR: resampling ",  current_name, "Quitting program.")
             time.sleep(1)
             os.kill(os.getpid(), signal.SIGTERM)
-
-        print("> POST: registering output segmentation masks back to T1")
-
-        current_experiment = os.path.join(current_folder, options['experiment'])
-        list_scans = os.listdir(current_experiment)
-
-        for file in list_scans:
-
-            # compute the inverse transformation
-            current_name = file[0:file.find('.')]
-            try:
-                subprocess.check_output([reg_resample_path,
-                                         '-ref', os.path.join(options['tmp_folder'],
-                                                              'T1.nii.gz'),
-                                         '-flo', os.path.join(current_experiment,
-                                                              file),
-                                         '-trans', os.path.join(options['tmp_folder'],
-                                                                'inv_T1_transf.txt'),
-                                         '-res', os.path.join(current_experiment,
-                                                              current_name + '_T1.nii.gz'),
-                                         '-inter', '0'])
-            except:
-                print("> ERROR: resampling ", current_name, "Quitting program.")
-                time.sleep(1)
-                os.kill(os.getpid(), signal.SIGTERM)
-
-
-    if  options['reg_space'] != 'FlairtoT1' and  options['reg_space'] != 'T1toFlair':
-        try:
-            subprocess.check_output([reg_transform_path, '-invAff',
-                                     os.path.join(options['tmp_folder'],
-                                                  'FLAIR_transf.txt'),
-                                     os.path.join(options['tmp_folder'],
-                                                  'inv_FLAIR_transf.txt')])
-        except:
-            print("> ERROR: computing the inverse transformation matrix.\
-             Quitting program.")
-            time.sleep(1)
-            os.kill(os.getpid(), signal.SIGTERM)
-
-        print("> POST: registering output segmentation masks back to FLAIR")
-
-        current_experiment = os.path.join(current_folder, options['experiment'])
-        list_scans = os.listdir(current_experiment)
-
-        for file in list_scans:
-
-            # compute the inverse transformation
-            current_name = file[0:file.find('.')]
-            try:
-                subprocess.check_output([reg_resample_path,
-                                         '-ref', os.path.join(options['tmp_folder'],
-                                                              'FLAIR.nii.gz'),
-                                         '-flo', os.path.join(current_experiment,
-                                                              file),
-                                         '-trans', os.path.join(options['tmp_folder'],
-                                                                'inv_FLAIR_transf.txt'),
-                                         '-res', os.path.join(current_experiment,
-                                                              current_name + '_FLAIR.nii.gz'),
-                                         '-inter', '0'])
-            except:
-                print("> ERROR: resampling ", current_name, "Quitting program.")
-                time.sleep(1)
-                os.kill(os.getpid(), signal.SIGTERM)                     

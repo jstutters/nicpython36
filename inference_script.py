@@ -21,9 +21,9 @@ import platform
 from timeit import time
 import configparser
 import numpy as np
-from utils.preprocess import preprocess_scan
-from  utils.postprocess import invert_registration
-from utils.load_options import load_options, print_options
+from sources.preprocess import preprocess_scan
+from sources.postprocess import invert_registration
+from sources.load_options import load_options, print_options
 CURRENT_PATH = CURRENT_PATH = os.path.split(os.path.realpath(__file__))[0]
 sys.path.append(os.path.join(CURRENT_PATH, 'libs'))
 # load options from input
@@ -323,8 +323,8 @@ def infer_segmentation(options):
     # define the training backend
     define_backend(options)
 
-    from CNN.base import test_cascaded_model
-    from CNN.build_model import cascade_model
+    from sources.base import test_cascaded_model
+    from sources.build_model import cascade_model
 
     # --------------------------------------------------
     # net configuration
