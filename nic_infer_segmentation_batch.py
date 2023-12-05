@@ -18,10 +18,10 @@ import platform
 import tempfile
 from timeit import time
 from configparser import ConfigParser
-from  utils.load_options import load_options, print_options
-from  utils.preprocess import preprocess_scan
-from  utils.postprocess import invert_registration
-from  shutil import copyfile
+from sources.load_options import load_options, print_options
+from sources.preprocess import preprocess_scan
+from sources.postprocess import invert_registration
+from shutil import copyfile
 import click
 import shutil
 import numpy as np
@@ -57,7 +57,6 @@ container = args.docker
 
 # --------------------------------------------------
 # load default options and update them with user information
-# from utils.load_options import *
 # --------------------------------------------------
 default_config = ConfigParser()
 default_config.read(os.path.join(CURRENT_PATH, 'config', 'default.cfg'))

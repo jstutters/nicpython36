@@ -19,8 +19,8 @@ from timeit import time
 import configparser
 import numpy as np
 import argparse
-from utils.preprocess import preprocess_scan
-from utils.load_options import load_options, print_options
+from sources.preprocess import preprocess_scan
+from sources.load_options import load_options, print_options
 import click
 import shutil
 

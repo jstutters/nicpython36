@@ -20,8 +20,8 @@ from timeit import time
 import numpy as np
 import argparse
 import configparser
-from utils.preprocess import preprocess_scan
-from utils.load_options import load_options, print_options
+from sources.preprocess import preprocess_scan
+from sources.load_options import load_options, print_options
 from libs.CNN.base import *
 import click
 import shutil
