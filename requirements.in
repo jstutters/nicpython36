@@ -1,0 +1,9 @@
+numpy
+tensorflow
+h5py
+MedPy
+nibabel
+Keras
+scipy
+Pillow
+click
