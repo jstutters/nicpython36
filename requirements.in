@@ -7,3 +7,5 @@ Keras
 scipy
 Pillow
 click
+scikit-learn
+simpleitk
