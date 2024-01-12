@@ -105,7 +105,7 @@ def parse_input_masks(current_folder, options):
             # check for extra dimensions
             input_path = os.path.join(current_folder, masks[index])
             input_sequence = nib.load(input_path)
-            input_image = np.squeeze(input_sequence.get_data())
+            input_image = np.squeeze(input_sequence.get_fdata())
             output_sequence = nib.Nifti1Image(input_image,
                                               affine=input_sequence.affine)
             output_sequence.to_filename(
@@ -514,7 +514,7 @@ def denoise_masks(options):
         tmp_scan = nib.load(os.path.join(options['tmp_folder'],
                                          current_image))
 
-        tmp_scan.get_data()[:] = ans_dif(tmp_scan.get_data(),
+        tmp_scan.get_fdata()[:] = ans_dif(tmp_scan.get_fdata(),
                                          niter=options['denoise_iter'])
 
         tmp_scan.to_filename(os.path.join(options['tmp_folder'],
@@ -584,7 +584,7 @@ def skull_strip(options):
                 time.sleep(1)
                 os.kill(os.getpid(), signal.SIGTERM)
 
-            brainmask = nib.load(t1_st_im).get_data() > 1
+            brainmask = nib.load(t1_st_im).get_fdata() > 1
             for mod in options['modalities']:
 
                 if mod == 'FLAIR':
@@ -600,9 +600,9 @@ def skull_strip(options):
                                                mod + '_tmp.nii.gz')
 
                 mask = nib.load(current_mask)
-                mask_nii = mask.get_data()
+                mask_nii = mask.get_fdata()
                 mask_nii[brainmask == 0] = 0
-                mask.get_data()[:] = mask_nii
+                mask.get_fdata()[:] = mask_nii
                 mask.to_filename(current_st_mask)
 
 
@@ -651,7 +651,7 @@ def skull_strip(options):
                 time.sleep(1)
                 os.kill(os.getpid(), signal.SIGTERM)
 
-            brainmask = nib.load(t1_st_im).get_data() > 1
+            brainmask = nib.load(t1_st_im).get_fdata() > 1
             for mod in options['modalities']:
 
                 if mod == 'FLAIR':
@@ -667,9 +667,9 @@ def skull_strip(options):
                                                mod + '_tmp.nii.gz')
 
                 mask = nib.load(current_mask)
-                mask_nii = mask.get_data()
+                mask_nii = mask.get_fdata()
                 mask_nii[brainmask == 0] = 0
-                mask.get_data()[:] = mask_nii
+                mask.get_fdata()[:] = mask_nii
                 mask.to_filename(current_st_mask)
 
     if  options['reg_space'] != 'FlairtoT1' and  options['reg_space'] != 'T1toFlair':    
@@ -715,7 +715,7 @@ def skull_strip(options):
                 time.sleep(1)
                 os.kill(os.getpid(), signal.SIGTERM)
 
-            brainmask = nib.load(t1_st_im).get_data() > 1
+            brainmask = nib.load(t1_st_im).get_fdata() > 1
             for mod in options['modalities']:
 
                 if mod == 'FLAIR':
@@ -731,9 +731,9 @@ def skull_strip(options):
                                                mod + '_tmp.nii.gz')
 
                 mask = nib.load(current_mask)
-                mask_nii = mask.get_data()
+                mask_nii = mask.get_fdata()
                 mask_nii[brainmask == 0] = 0
-                mask.get_data()[:] = mask_nii
+                mask.get_fdata()[:] = mask_nii
                 mask.to_filename(current_st_mask)
 
             image = load_nii(os.path.join(options['tmp_folder'], 'FLAIR_tmp.nii.gz'))
@@ -751,9 +751,9 @@ def zscore_normalize(img, mask=None):
         normalized (nibabel.nifti1.Nifti1Image): img with WM mean at norm_value
     """
 
-    img_data = img.get_data()
+    img_data = img.get_fdata()
     if mask is not None and not isinstance(mask, str):
-        mask_data = mask.get_data()
+        mask_data = mask.get_fdata()
     elif mask == 'nomask':
         mask_data = img_data == img_data
     else:

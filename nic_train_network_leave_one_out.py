@@ -81,12 +81,12 @@ def test_scan(model,
     scans = list(test_x_data.keys())
     flair_scans = [test_x_data[s]['FLAIR'] for s in scans]
     flair_image = load_nii(flair_scans[0])
-    seg_image = np.zeros_like(flair_image.get_data().astype('float32'))
+    seg_image = np.zeros_like(flair_image.get_fdata().astype('float32'))
 
     if candidate_mask is not None:
         all_voxels = np.sum(candidate_mask)
     else:
-        all_voxels = np.sum(flair_image.get_data() > 0)
+        all_voxels = np.sum(flair_image.get_fdata() > 0)
 
     if options['debug'] is True:
             print("> DEBUG ", scans[0], "Voxels to classify:", all_voxels)
@@ -118,7 +118,7 @@ def test_scan(model,
         if options['debug']:
             print("> DEBUG ", scans[0], "lesion volume below ", \
                 options['min_error'], 'ml')
-        seg_image = np.zeros_like(flair_image.get_data().astype('float32'))
+        seg_image = np.zeros_like(flair_image.get_fdata().astype('float32'))
 
     if save_nifti:
         out_scan = nib.Nifti1Image(seg_image, affine=flair_image.affine)

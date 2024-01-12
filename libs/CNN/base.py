@@ -304,7 +304,7 @@ def select_training_voxels(input_masks, threshold=2, datatype=np.float32):
     """
 
     # load images and normalize their intensities
-    images = [load_nii(image_name).get_data() for image_name in input_masks]
+    images = [load_nii(image_name).get_fdata() for image_name in input_masks]
     images_norm = [normalize_data(im) for im in images]
     # select voxels with intensity higher than threshold
     rois = [image > threshold for image in images_norm]
@@ -336,11 +336,11 @@ def load_train_patches(x_data,
     """
 
     # load images and normalize their intensties
-    images = [load_nii(name).get_data() for name in x_data]
+    images = [load_nii(name).get_fdata() for name in x_data]
     images_norm = [normalize_data(im) for im in images]
 
     # load labels
-    lesion_masks = [load_nii(name).get_data().astype(dtype=np.bool)
+    lesion_masks = [load_nii(name).get_fdata().astype(dtype=np.bool)
                     for name in y_data]
     nolesion_masks = [np.logical_and(np.logical_not(lesion), brain)
                       for lesion, brain in zip(lesion_masks, selected_voxels)]
@@ -440,7 +440,7 @@ def load_test_patches(test_x_data,
     images = []
 
     for m in modalities:
-        raw_images = [load_nii(test_x_data[s][m]).get_data() for s in scans]
+        raw_images = [load_nii(test_x_data[s][m]).get_fdata() for s in scans]
         images.append([normalize_data(im) for im in raw_images])
 
     # select voxels for testing. Discard CSF and darker WM in FLAIR.
@@ -530,12 +530,12 @@ def test_scan(model,
     scans = test_x_data.keys()
     flair_scans = [test_x_data[s]['FLAIR'] for s in scans]
     flair_image = load_nii(flair_scans[0])
-    seg_image = np.zeros_like(flair_image.get_data().astype('float32'))
+    seg_image = np.zeros_like(flair_image.get_fdata().astype('float32'))
 
     if candidate_mask is not None:
         all_voxels = np.sum(candidate_mask)
     else:
-        all_voxels = np.sum(flair_image.get_data() > 0)
+        all_voxels = np.sum(flair_image.get_fdata() > 0)
 
     if options['debug'] is True:
         print("> DEBUG ", scans[0], "Voxels to classify:", all_voxels)
@@ -561,7 +561,7 @@ def test_scan(model,
         if options['debug']:
             print("> DEBUG ", scans[0], "lesion volume below ", \
                 options['min_error'], 'ml')
-        seg_image = np.zeros_like(flair_image.get_data().astype('float32'))
+        seg_image = np.zeros_like(flair_image.get_fdata().astype('float32'))
 
     if save_nifti:
         out_scan = nib.Nifti1Image(seg_image, affine=flair_image.affine)
@@ -648,7 +648,7 @@ def select_voxels_from_previous_model(model, train_x_data, options):
     # if no voxels have been selected, return candidate voxels on
     # FLAIR modality > 2
     flair_scans = [train_x_data[s]['FLAIR'] for s in scans]
-    images = [load_nii(name).get_data() for name in flair_scans]
+    images = [load_nii(name).get_fdata() for name in flair_scans]
     images_norm = [normalize_data(im) for im in images]
 
     seg_mask = [im > 2 if np.sum(seg) == 0 else seg
