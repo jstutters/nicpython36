@@ -4,7 +4,7 @@ from keras.layers import PReLU as prelu
 from keras.layers import BatchNormalization as BN
 from keras import backend as K
 from keras.models import Model
-K.set_image_dim_ordering('th')
+K.set_image_data_format('channels_first')
 
 def get_network(options):
     """
