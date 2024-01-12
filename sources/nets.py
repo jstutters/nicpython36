@@ -1,7 +1,7 @@
 from keras.layers import Dense, Dropout, Flatten, Input
-from keras.layers.convolutional import Conv3D, MaxPooling3D
-from keras.layers.advanced_activations import PReLU as prelu
-from keras.layers.normalization import BatchNormalization as BN
+from keras.layers import Conv3D, MaxPooling3D
+from keras.layers import PReLU as prelu
+from keras.layers import BatchNormalization as BN
 from keras import backend as K
 from keras import regularizers
 from keras.models import Model
