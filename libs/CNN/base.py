@@ -3,7 +3,7 @@ import numpy as np
 from nibabel import load as load_nii
 import nibabel as nib
 from operator import itemgetter
-from build_model import define_training_layers, fit_model
+from .build_model import define_training_layers, fit_model
 from operator import add
 
 
